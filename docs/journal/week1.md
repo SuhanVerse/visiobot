@@ -7,4 +7,9 @@
 
 ## Day 2
 **Goal:** Write publisher node in Python.
+**Progress:** Set up ROS2 workspace for my VisioBot project. Created a simple publisher node that publishes a string message every second and build this package using `colcon build --symlink-install`.
+**Roadblocks:** Had some issues with the ROS2 environment setup, but resolved them by sourcing the setup script correctly and also encountered package license issues (Apache-2.0).
+
+## Day 3
+**Goal:** Write Listener node in C++.
 **Progress:** ...
