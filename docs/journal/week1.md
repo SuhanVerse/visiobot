@@ -11,5 +11,10 @@
 **Roadblocks:** Had some issues with the ROS2 environment setup, but resolved them by sourcing the setup script correctly and also encountered package license issues (Apache-2.0).
 
 ## Day 3
-**Goal:** Write Listener node in C++.
+**Goal:** Write Listener node in Python.
+**Progress:** Created a subscriber node that listens to the topic published by the publisher node and prints the received messages to the console. Successfully ran both nodes and verified that the communication works as expected.
+
+
+## Day 4
+**Goal:** C++ nodes with rclcpp.
 **Progress:** ...
