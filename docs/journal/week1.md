@@ -17,4 +17,8 @@
 
 ## Day 4
 **Goal:** C++ nodes with rclcpp.
+**Progress:** Implemented the same publisher and subscriber nodes in C++ that I have previously implemented in Python. (rclcpp)
+
+## Day 5
+**Goal:** Custom interfaces, services, and clients
 **Progress:** ...
