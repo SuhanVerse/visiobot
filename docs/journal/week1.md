@@ -19,6 +19,22 @@
 **Goal:** C++ nodes with rclcpp.
 **Progress:** Implemented the same publisher and subscriber nodes in C++ that I have previously implemented in Python. (rclcpp)
 
-## Day 5
-**Goal:** Custom interfaces, services, and clients
+## Day 5: Custom Interfaces and Services
+**Date:** June 5, 2026
+**Objective:** Transition from continuous Topic broadcasts (pub/sub) to synchronous Request-Response calls using ROS2 Services.
+
+**Tasks Completed:**
+* **Created a Custom Interface Package:** Generated an `ament_cmake` package named `visiobot_interfaces` strictly for holding `.msg` and `.srv` files.
+* **Defined a Custom Service:** Built `SetMode.srv`, configuring the request payload (`string mode`) and the response payload (`bool success`, `string message`).
+* **Configured Interface Build Architecture:** Updated `package.xml` and `CMakeLists.txt` using `rosidl_default_generators` to ensure ROS2 properly compiles the custom service into usable C++ and Python headers.
+* **Built a Python Service Server:** Authored `mode_service.py` inside `visiobot_core` to act as the server. It listens for requested modes (e.g., patrol, standby) and returns a success boolean and validation string.
+* **CLI Verification:** Successfully tested the synchronous loop without building a separate client node by using `ros2 service call /set_mode visiobot_interfaces/srv/SetMode "{mode: 'patrol'}"` directly from the terminal.
+
+**Key Takeaway:**
+While Topics are ideal for continuous data streams like sensor telemetry, Services provide a crucial mechanism for triggering specific state changes or actions within the robot's architecture where confirmation of execution is required.
+
+
+
+## Day 6
+**Goal:** Actions for long-running robot goals
 **Progress:** ...
