@@ -27,6 +27,7 @@ setup(
             'telemetry_pub = visiobot_core.telemetry_pub:main',
             'telemetry_sub = visiobot_core.telemetry_sub:main',
             'mode_service = visiobot_core.mode_service:main',
+            'navigate_server = visiobot_core.navigate_server:main',
         ],
     },
 )

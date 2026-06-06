@@ -1,22 +1,27 @@
-cmake_minimum_required(VERSION 3.8)
-project(visiobot_interfaces)
+  cmake_minimum_required(VERSION 3.8)
+  project(visiobot_interfaces)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-Wall -Wextra -Wpedantic)
+  endif()
 
-# find dependencies
-find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
-find_package(rosidl_default_generators REQUIRED)
+  # find dependencies
+  find_package(ament_cmake REQUIRED)
+  # uncomment the following section in order to fill in
+  # further dependencies manually.
+  # find_package(<dependency> REQUIRED)
+  find_package(ament_cmake REQUIRED)
+  find_package(rosidl_default_generators REQUIRED)
+  find_package(action_msgs REQUIRED)
 
-rosidl_generate_interfaces(${PROJECT_NAME}
-  "srv/SetMode.srv"
-)
+  rosidl_generate_interfaces(${PROJECT_NAME}
+    "srv/SetMode.srv"
+    "action/Navigate.action"
+    DEPENDENCIES action_msgs
+  )
 
-if(BUILD_TESTING)
+  if(BUILD_TESTING)
+
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
   # comment the line when a copyright and license is added to all source files
@@ -26,6 +31,6 @@ if(BUILD_TESTING)
   # a copyright and license is added to all source files
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
-endif()
+  endif()
 
-ament_package()
+  ament_package()

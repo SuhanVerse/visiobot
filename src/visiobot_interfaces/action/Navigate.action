@@ -1,0 +1,9 @@
+# Goal (Where to go)
+float32 target_x
+float32 target_y
+---
+# Result (Final summary when finished)
+float32 elapsed_time
+---
+# Feedback (Live updates while moving)
+float32 distance_remaining
