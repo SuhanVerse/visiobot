@@ -28,6 +28,8 @@ setup(
             'telemetry_sub = visiobot_core.telemetry_sub:main',
             'mode_service = visiobot_core.mode_service:main',
             'navigate_server = visiobot_core.navigate_server:main',
+            'tf_broadcaster = visiobot_core.tf_broadcaster:main',
+            'dynamic_tf_broadcaster = visiobot_core.dynamic_tf_broadcaster:main',
         ],
     },
 )

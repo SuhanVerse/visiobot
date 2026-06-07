@@ -47,7 +47,17 @@ While Topics are ideal for continuous data streams like sensor telemetry, Servic
 **Key Takeaway:**
 ROS2 Actions are the definitive solution for robot navigation and complex operations. They provide the reliability of a Service's request/response while adding the crucial ability to track progress (Feedback) and cancel operations mid-execution.
 
+## Day 7: TF2 Transforms and Coordinate Frames
+**Deliverable: VisioBot Frame Naming Convention**
+To maintain sanity as the VisioBot architecture scales, the following standard TF2 frame nomenclature will be enforced across all nodes:
+* `map`: The global, fixed coordinate frame.
+* `odom`: The computed odometry frame (drifts over time).
+* `base_link`: The physical center of the robot chassis.
+* `camera_link`: Static mount point for the front-facing vision system.
+* `laser_link`: Static mount point for the 2D LiDAR.
+* `moving_scanner_link`: Dynamic frame representing the actuated sensor head.
 
-## Day 7
+
+## Day 8
 **Goal:** TF2 transforms and RViz frame sanity
 **Progress:** ...
