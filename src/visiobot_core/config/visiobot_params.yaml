@@ -1,0 +1,4 @@
+telemetry_pub:
+  ros__parameters:
+    robot_name: "VisioBot_Prime"
+    publish_rate_hz: 2.0

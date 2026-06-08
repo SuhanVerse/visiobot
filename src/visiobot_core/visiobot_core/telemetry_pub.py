@@ -4,32 +4,33 @@ from std_msgs.msg import String
 
 class TelemetryPublisher(Node):
     def __init__(self):
-        
-        # Name of the node in the ROS2 graph
         super().__init__('telemetry_pub')
-        
+
+        self.declare_parameter('robot_name', 'DefaultBot')
+        self.robot_name = self.get_parameter('robot_name').get_parameter_value().string_value
+
+        # Set up the publisher and timer
         self.publisher_ = self.create_publisher(String, 'visiobot_status', 10)
+        self.timer = self.create_timer(1.0, self.timer_callback)
         
-        timer_period = 1.0  
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.i = 0
+        # Here is the missing counter initialization!
+        self.count_ = 0
 
     def timer_callback(self):
         msg = String()
-        msg.data = f'VisioBot Systems Normal(Planned). Runtime cycle: {self.i}'
+        # Use the injected YAML parameter for the robot name
+        msg.data = f"{self.robot_name} Systems Nominal. Runtime cycle: {self.count_}"
         self.publisher_.publish(msg)
         self.get_logger().info(f'Publishing: "{msg.data}"')
-        self.i += 1
+        
+        # Increment the counter for the next loop
+        self.count_ += 1
 
 def main(args=None):
     rclpy.init(args=args)
-    telemetry_publisher = TelemetryPublisher()
-    
-    # Keep the node running
-    rclpy.spin(telemetry_publisher)
-    
-    # Cleanup when killed
-    telemetry_publisher.destroy_node()
+    node = TelemetryPublisher()
+    rclpy.spin(node)
+    node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':

@@ -58,6 +58,3 @@ To maintain sanity as the VisioBot architecture scales, the following standard T
 * `moving_scanner_link`: Dynamic frame representing the actuated sensor head.
 
 
-## Day 8
-**Goal:** TF2 transforms and RViz frame sanity
-**Progress:** ...
