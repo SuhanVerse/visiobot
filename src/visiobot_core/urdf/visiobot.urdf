@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<robot name="visiobot">
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.4 0.3 0.1"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.2 0.8 1.0"/>
+      </material>
+    </visual>
+  </link>
+
+  <link name="right_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="base_to_right_wheel" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="-0.1 -0.175 0" rpy="1.5708 0 0"/>
+    <axis xyz="0 0 -1"/>
+  </joint>
+
+  <link name="left_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="base_to_left_wheel" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="-0.1 0.175 0" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="caster_wheel">
+    <visual>
+      <geometry>
+        <sphere radius="0.05"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="base_to_caster" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_wheel"/>
+    <origin xyz="0.15 0.0 -0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_link">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.05"/>
+      </geometry>
+      <material name="red">
+        <color rgba="0.8 0.0 0.0 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="base_to_camera" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.18 0.0 0.075" rpy="0 0 0"/>
+  </joint>
+
+  <link name="laser_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.05" length="0.05"/>
+      </geometry>
+      <material name="green">
+        <color rgba="0.0 0.8 0.0 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <joint name="base_to_laser" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser_link"/>
+    <origin xyz="0.0 0.0 0.075" rpy="0 0 0"/>
+  </joint>
+
+</robot>
