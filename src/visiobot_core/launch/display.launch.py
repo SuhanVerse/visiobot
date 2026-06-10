@@ -1,34 +1,34 @@
 import os
+import xacro
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
+
 def generate_launch_description():
-    urdf_file = os.path.join(
+    # Locate the .xacro file
+    xacro_file = os.path.join(
         get_package_share_directory('visiobot_core'),
         'urdf',
-        'visiobot.urdf'
+        'visiobot.urdf.xacro'
     )
 
-    with open(urdf_file, 'r') as infp:
-        robot_desc = infp.read()
+    # Compile the Xacro file into a standard URDF string format on the fly
+    robot_description_raw = xacro.process_file(xacro_file).toxml()
 
-    # Translates URDF to TF broadcasts
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
-        parameters=[{'robot_description': robot_desc}]
+        parameters=[{'robot_description': robot_description_raw}]
     )
 
-    # Sliders to manually rotate the wheels
     joint_state_publisher_gui_node = Node(
         package='joint_state_publisher_gui',
         executable='joint_state_publisher_gui',
         name='joint_state_publisher_gui'
     )
 
-    # Opens RViz2 automatically
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
