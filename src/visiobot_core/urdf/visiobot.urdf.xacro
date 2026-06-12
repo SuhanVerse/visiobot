@@ -41,7 +41,6 @@
   </xacro:macro>
 
   <link name="base_footprint"/>
-
   <joint name="base_footprint_joint" type="fixed">
     <parent link="base_footprint"/>
     <child link="base_link"/>
@@ -50,17 +49,11 @@
 
   <link name="base_link">
     <visual>
-      <geometry>
-        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
-      </geometry>
-      <material name="blue">
-        <color rgba="0.0 0.2 0.8 1.0"/>
-      </material>
+      <geometry><box size="${chassis_length} ${chassis_width} ${chassis_height}"/></geometry>
+      <material name="blue"><color rgba="0.0 0.2 0.8 1.0"/></material>
     </visual>
     <collision>
-      <geometry>
-        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
-      </geometry>
+      <geometry><box size="${chassis_length} ${chassis_width} ${chassis_height}"/></geometry>
     </collision>
     <xacro:box_inertia m="${chassis_mass}" l="${chassis_length}" w="${chassis_width}" h="${chassis_height}"/>
   </link>
@@ -68,21 +61,14 @@
   <xacro:macro name="wheel" params="prefix y_reflect rpy_val">
     <link name="${prefix}_wheel">
       <visual>
-        <geometry>
-          <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
-        </geometry>
-        <material name="black">
-          <color rgba="0.1 0.1 0.1 1.0"/>
-        </material>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_length}"/></geometry>
+        <material name="black"><color rgba="0.1 0.1 0.1 1.0"/></material>
       </visual>
       <collision>
-        <geometry>
-          <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
-        </geometry>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_length}"/></geometry>
       </collision>
       <xacro:cylinder_inertia m="${wheel_mass}" r="${wheel_radius}" h="${wheel_length}"/>
     </link>
-
     <joint name="base_to_${prefix}_wheel" type="continuous">
       <parent link="base_link"/>
       <child link="${prefix}_wheel"/>
@@ -90,22 +76,12 @@
       <axis xyz="0 0 1"/>
     </joint>
   </xacro:macro>
-
   <xacro:wheel prefix="right" y_reflect="-1" rpy_val="1.5708"/>
   <xacro:wheel prefix="left" y_reflect="1" rpy_val="-1.5708"/>
 
   <link name="caster_wheel">
-    <visual>
-      <geometry>
-        <sphere radius="0.05"/>
-      </geometry>
-      <material name="black"/>
-    </visual>
-    <collision>
-      <geometry>
-        <sphere radius="0.05"/>
-      </geometry>
-    </collision>
+    <visual><geometry><sphere radius="0.05"/></geometry><material name="black"/></visual>
+    <collision><geometry><sphere radius="0.05"/></geometry></collision>
     <xacro:sphere_inertia m="0.1" r="0.05"/>
   </link>
   <joint name="base_to_caster" type="fixed">
@@ -116,18 +92,10 @@
 
   <link name="camera_link">
     <visual>
-      <geometry>
-        <box size="0.05 0.05 0.05"/>
-      </geometry>
-      <material name="red">
-        <color rgba="0.8 0.0 0.0 1.0"/>
-      </material>
+      <geometry><box size="0.05 0.05 0.05"/></geometry>
+      <material name="red"><color rgba="0.8 0.0 0.0 1.0"/></material>
     </visual>
-    <collision>
-      <geometry>
-        <box size="0.05 0.05 0.05"/>
-      </geometry>
-    </collision>
+    <collision><geometry><box size="0.05 0.05 0.05"/></geometry></collision>
     <xacro:box_inertia m="0.1" l="0.05" w="0.05" h="0.05"/>
   </link>
   <joint name="base_to_camera" type="fixed">
@@ -136,20 +104,19 @@
     <origin xyz="0.18 0.0 0.075" rpy="0 0 0"/>
   </joint>
 
+  <joint name="camera_optical_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_link_optical"/>
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+  </joint>
+  <link name="camera_link_optical"></link>
+
   <link name="laser_link">
     <visual>
-      <geometry>
-        <cylinder radius="0.05" length="0.05"/>
-      </geometry>
-      <material name="green">
-        <color rgba="0.0 0.8 0.0 1.0"/>
-      </material>
+      <geometry><cylinder radius="0.05" length="0.05"/></geometry>
+      <material name="green"><color rgba="0.0 0.8 0.0 1.0"/></material>
     </visual>
-    <collision>
-      <geometry>
-        <cylinder radius="0.05" length="0.05"/>
-      </geometry>
-    </collision>
+    <collision><geometry><cylinder radius="0.05" length="0.05"/></geometry></collision>
     <xacro:cylinder_inertia m="0.2" r="0.05" h="0.05"/>
   </link>
   <joint name="base_to_laser" type="fixed">
@@ -161,8 +128,57 @@
   <gazebo reference="base_link"><material>Gazebo/Blue</material></gazebo>
   <gazebo reference="right_wheel"><material>Gazebo/Black</material></gazebo>
   <gazebo reference="left_wheel"><material>Gazebo/Black</material></gazebo>
-  <gazebo reference="camera_link"><material>Gazebo/Red</material></gazebo>
-  <gazebo reference="laser_link"><material>Gazebo/Green</material></gazebo>
+  
+  <gazebo reference="camera_link">
+    <material>Gazebo/Red</material>
+    <sensor name="camera_sensor" type="camera">
+      <pose>0 0 0 0 0 0</pose>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <update_rate>10.0</update_rate>
+      <camera>
+        <horizontal_fov>1.089</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.05</near>
+          <far>8.0</far>
+        </clip>
+      </camera>
+      <topic>/camera/image_raw</topic>
+      <gz_frame_id>camera_link_optical</gz_frame_id>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="laser_link">
+    <material>Gazebo/Green</material>
+    <sensor name="laser_sensor" type="gpu_lidar">
+      <pose>0 0 0 0 0 0</pose>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <update_rate>10.0</update_rate>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.12</min>
+          <max>10.0</max>
+          <resolution>0.015</resolution>
+        </range>
+      </lidar>
+      <topic>/scan</topic>
+      <gz_frame_id>laser_link</gz_frame_id>
+    </sensor>
+  </gazebo>
 
   <gazebo>
     <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
@@ -173,7 +189,7 @@
       <topic>cmd_vel</topic>
       <odom_topic>odom</odom_topic>
       <frame_id>odom</frame_id>
-      <child_frame_id>base_link</child_frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
     </plugin>
   </gazebo>
 

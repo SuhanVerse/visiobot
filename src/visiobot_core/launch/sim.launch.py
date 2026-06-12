@@ -22,10 +22,12 @@ def generate_launch_description():
             'use_sim_time': True
         }]
     )
+
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(ros_gz_sim_dir, 'launch', 'gz_sim.launch.py')
         ),
+        # The '-r' flag forces Gazebo to auto-play so it doesn't start paused!
         launch_arguments={'gz_args': 'empty.sdf -r'}.items()
     )
 
@@ -40,8 +42,29 @@ def generate_launch_description():
         output='screen'
     )
 
+    # 1. Standard Bridge for lightweight data (LiDAR and Clock)
+    bridge_node = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=[
+            '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'
+        ],
+        output='screen'
+    )
+
+    # 2. High-Performance Bridge exclusively for Video
+    image_bridge_node = Node(
+        package='ros_gz_image',
+        executable='image_bridge',
+        arguments=['/camera/image_raw'],
+        output='screen'
+    )
+
     return LaunchDescription([
         robot_state_publisher_node,
         gazebo,
-        spawn_entity
+        spawn_entity,
+        bridge_node,
+        image_bridge_node
     ])

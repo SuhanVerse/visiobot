@@ -34,6 +34,9 @@ Move the robot from static visualization (RViz) into a full physics engine (Gaze
 - **Root Links Must Be Weightless:** Always start a URDF with a `base_footprint` link that has no `<inertial>` or `<collision>` tags to anchor the robot safely in the physics engine.
 
 
+Today was all about giving my robot senses. I added camera and LiDAR sensors to the simulation so the bot can actually "see" and scan its environment.
+
+
 ## Day 12
 **Goal:** Gazebo Simulation
 **Progress:** ...
