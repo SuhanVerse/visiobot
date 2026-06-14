@@ -87,7 +87,7 @@ Visualization Manager:
       Axis: Z
       Channel Name: intensity
       Class: rviz_default_plugins/LaserScan
-      Color: 255; 0; 0
+      Color: 0; 255; 255
       Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true
@@ -99,7 +99,7 @@ Visualization Manager:
       Name: LaserScan
       Position Transformer: XYZ
       Selectable: true
-      Size (Pixels): 3
+      Size (Pixels): 5
       Size (m): 0.009999999776482582
       Style: Points
       Topic:
