@@ -2,8 +2,6 @@ import os
 from glob import glob
 from setuptools import find_packages, setup
 
-from setuptools import find_packages, setup
-
 package_name = 'visiobot_core'
 
 setup(
@@ -18,6 +16,8 @@ setup(
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*.urdf')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*.xacro')),
+        (os.path.join('share', package_name, 'gazebo'), glob('gazebo/*.sdf')),
+        (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

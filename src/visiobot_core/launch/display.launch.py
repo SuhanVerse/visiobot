@@ -20,7 +20,7 @@ def generate_launch_description():
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
-        parameters=[{'robot_description': robot_description_raw}]
+        parameters=[{'robot_description': robot_description_raw, 'use_sim_time': False}]
     )
 
     joint_state_publisher_gui_node = Node(
@@ -33,7 +33,8 @@ def generate_launch_description():
         package='rviz2',
         executable='rviz2',
         name='rviz2',
-        output='screen'
+        output='screen',
+        arguments=['-d', os.path.join(get_package_share_directory('visiobot_core'), 'rviz', 'visiobot_sim.rviz')]
     )
 
     return LaunchDescription([
