@@ -58,3 +58,4 @@ log/
 # Local guides (not for version control)
 guide/*
 DRIFT.md
+tutorials/*

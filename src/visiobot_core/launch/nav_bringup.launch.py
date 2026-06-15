@@ -31,7 +31,8 @@ def generate_launch_description():
         launch_arguments=[
             ('use_sim_time', 'True'),
             ('params_file', nav2_params_file),
-            ('autostart', 'True')
+            ('autostart', 'True'),
+            ('use_collision_monitor', 'False')
         ]
     )
 

@@ -129,7 +129,7 @@ local_costmap:
       height: 3
       resolution: 0.05
       robot_radius: 0.22
-      plugins: ["obstacle_layer", "inflation_layer"]
+      plugins: ["obstacle_layer", "denoise_layer", "inflation_layer"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
@@ -141,13 +141,18 @@ local_costmap:
           marking: True
           data_type: "LaserScan"
           raytrace_max_range: 3.0
-          raytrace_min_range: 0.0
+          raytrace_min_range: 0.25
           obstacle_max_range: 2.5
-          obstacle_min_range: 0.0
+          obstacle_min_range: 0.25
+      denoise_layer:
+        plugin: "nav2_costmap_2d::DenoiseLayer"
+        enabled: true
+        minimal_group_size: 2
+        group_connectivity_type: 8
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        cost_scaling_factor: 2.58
+        inflation_radius: 1.75
       always_send_full_costmap: True
 
 global_costmap:
@@ -176,13 +181,13 @@ global_costmap:
           marking: True
           data_type: "LaserScan"
           raytrace_max_range: 3.0
-          raytrace_min_range: 0.0
+          raytrace_min_range: 0.25
           obstacle_max_range: 2.5
-          obstacle_min_range: 0.0
+          obstacle_min_range: 0.25
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        cost_scaling_factor: 2.58
+        inflation_radius: 1.75
       always_send_full_costmap: True
 
 map_server:
@@ -273,12 +278,12 @@ velocity_smoother:
 docking_server:
   ros__parameters:
     use_sim_time: True
-    dock_plugins: ['exact_pose']
-    exact_pose:
-      plugin: 'opennav_docking::ExactPose'
+    dock_plugins: ['simple_dock']
+    simple_dock:
+      plugin: 'opennav_docking::SimpleNonChargingDock'
     docks: ['dummy_dock']
     dummy_dock:
-      type: 'exact_pose'
+      type: 'simple_dock'
       frame: map
       pose: [0.0, 0.0, 0.0]
 
@@ -289,19 +294,25 @@ collision_monitor:
     odom_frame_id: "odom"
     cmd_vel_in_topic: "cmd_vel_smoothed"
     cmd_vel_out_topic: "cmd_vel"
+    state_topic: "collision_monitor_state"
     transform_tolerance: 0.2
     source_timeout: 1.0
+    base_shift_correction: True
     stop_pub_timeout: 2.0
-    polygons: ["PolygonStop"]
-    PolygonStop:
+    polygons: ["FootprintApproach"]
+    FootprintApproach:
       type: "polygon"
-      points: "[[0.3, 0.3], [0.3, -0.3], [-0.3, -0.3], [-0.3, 0.3]]"
-      action_type: "stop"
-      min_points: 4
-      visualize: True
-      polygon_pub_topic: "polygon_stop"
-      polygon_sub_topic: "polygon_stop_sub"
+      action_type: "approach"
+      footprint_topic: "/local_costmap/published_footprint"
+      time_before_collision: 1.2
+      simulation_time_step: 0.1
+      min_points: 6
+      visualize: False
+      enabled: False
     observation_sources: ["scan"]
     scan:
       type: "scan"
       topic: "/scan"
+      min_height: 0.15
+      max_height: 2.0
+      enabled: False
