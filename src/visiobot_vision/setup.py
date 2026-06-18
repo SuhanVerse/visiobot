@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'camera_processor = visiobot_vision.camera_processor:main',
+            'yolo_detector = visiobot_vision.yolo_detector:main',
         ],
     },
 )
