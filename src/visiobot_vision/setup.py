@@ -26,6 +26,7 @@ setup(
         'console_scripts': [
             'camera_processor = visiobot_vision.camera_processor:main',
             'yolo_detector = visiobot_vision.yolo_detector:main',
+            'image_overlay_node = visiobot_vision.image_overlay_node:main',
         ],
     },
 )

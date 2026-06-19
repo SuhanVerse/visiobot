@@ -5,6 +5,8 @@ from cv_bridge import CvBridge, CvBridgeError
 from ultralytics import YOLO
 
 
+from vision_msgs.msg import Detection2DArray, Detection2D, ObjectHypothesisWithPose
+
 class YoloDetector(Node):
     def __init__(self):
         super().__init__('yolo_detector')
@@ -22,10 +24,10 @@ class YoloDetector(Node):
             10
         )
 
-        # Publisher for annotated debug image
+        # Publisher for clean detection data
         self.publisher = self.create_publisher(
-            Image,
-            '/camera/yolo/debug_image',
+            Detection2DArray,
+            '/yolo/detections',
             10
         )
 
@@ -44,33 +46,41 @@ class YoloDetector(Node):
         results = self.model.predict(
             source=current_frame, conf=0.15, verbose=False)
 
-        # 3. Process results
+        # 3. Create Detection2DArray
+        det_array = Detection2DArray()
+        det_array.header = data.header
+
+        # 4. Process results and populate message
         if len(results) > 0:
             result = results[0]
 
-            # Log detected classes and confidences
             for box in result.boxes:
+                det = Detection2D()
+                det.header = data.header
+
+                # YOLO box.xywh returns [center_x, center_y, width, height]
+                xywh = box.xywh[0]
+                det.bbox.center.position.x = float(xywh[0])
+                det.bbox.center.position.y = float(xywh[1])
+                det.bbox.size_x = float(xywh[2])
+                det.bbox.size_y = float(xywh[3])
+
                 cls_id = int(box.cls[0])
                 conf = float(box.conf[0])
                 cls_name = self.model.names[cls_id]
+
+                hyp = ObjectHypothesisWithPose()
+                hyp.hypothesis.class_id = cls_name
+                hyp.hypothesis.score = conf
+                
+                det.results.append(hyp)
+                det_array.detections.append(det)
+
                 self.get_logger().info(
                     f"Detected: {cls_name} with confidence: {conf:.2f}")
 
-            # 4. Annotate image using Ultralytics plot()
-            annotated_frame = result.plot()
-        else:
-            annotated_frame = current_frame
-
-        try:
-            # 5. Convert OpenCV image back to ROS Image message
-            img_msg = self.br.cv2_to_imgmsg(annotated_frame, "bgr8")
-            img_msg.header = data.header  # Preserve original timestamp and frame_id
-
-            # 6. Republish annotated frame
-            self.publisher.publish(img_msg)
-        except CvBridgeError as e:
-            self.get_logger().error(
-                f"Failed to convert back to ROS message: {e}")
+        # 5. Publish the clean data message
+        self.publisher.publish(det_array)
 
 
 def main(args=None):
