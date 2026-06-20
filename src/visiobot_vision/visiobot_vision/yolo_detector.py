@@ -42,9 +42,9 @@ class YoloDetector(Node):
             self.get_logger().error(f"Failed to convert image: {e}")
             return
 
-        # 2. Run YOLOv8 inference
-        results = self.model.predict(
-            source=current_frame, conf=0.15, verbose=False)
+        # 2. Run YOLOv8 tracking inference
+        results = self.model.track(
+            source=current_frame, persist=True, tracker='botsort.yaml', conf=0.15, verbose=False)
 
         # 3. Create Detection2DArray
         det_array = Detection2DArray()
@@ -69,15 +69,22 @@ class YoloDetector(Node):
                 conf = float(box.conf[0])
                 cls_name = self.model.names[cls_id]
 
+                # Extract tracking ID if available
+                if box.id is not None:
+                    track_id = int(box.id[0])
+                    class_id_str = f"{cls_name}_{track_id}"
+                else:
+                    class_id_str = cls_name
+
                 hyp = ObjectHypothesisWithPose()
-                hyp.hypothesis.class_id = cls_name
+                hyp.hypothesis.class_id = class_id_str
                 hyp.hypothesis.score = conf
                 
                 det.results.append(hyp)
                 det_array.detections.append(det)
 
                 self.get_logger().info(
-                    f"Detected: {cls_name} with confidence: {conf:.2f}")
+                    f"Detected: {class_id_str} with confidence: {conf:.2f}")
 
         # 5. Publish the clean data message
         self.publisher.publish(det_array)
