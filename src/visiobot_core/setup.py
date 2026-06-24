@@ -4,6 +4,11 @@ from setuptools import find_packages, setup
 
 package_name = 'visiobot_core'
 
+models_files = []
+for root, dirs, files in os.walk('models'):
+    install_dir = os.path.join('share', package_name, root)
+    models_files.append((install_dir, [os.path.join(root, f) for f in files]))
+
 setup(
     name=package_name,
     version='0.0.0',
@@ -18,7 +23,7 @@ setup(
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*.xacro')),
         (os.path.join('share', package_name, 'gazebo'), glob('gazebo/*.sdf')),
         (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
-    ],
+    ] + models_files,
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='xlegion',

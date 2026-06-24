@@ -17,7 +17,7 @@ def generate_launch_description():
     else:
         os.environ['GZ_SIM_RESOURCE_PATH'] = models_dir
 
-    world_file = os.path.join(visiobot_core_dir, 'gazebo', 'visiobot_coco.sdf')
+    world_file = os.path.join(visiobot_core_dir, 'gazebo', 'visiobot_empty.sdf')
 
     xacro_file = os.path.join(visiobot_core_dir, 'urdf', 'visiobot.urdf.xacro')
     robot_description_raw = xacro.process_file(xacro_file).toxml()

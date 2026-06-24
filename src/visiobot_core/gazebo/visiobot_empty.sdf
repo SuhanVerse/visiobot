@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.8">
-  <world name="visiobot_coco_world">
+  <world name="visiobot_empty_world">
     <physics name="1ms" type="ignored">
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1.0</real_time_factor>
@@ -43,30 +43,6 @@
         </visual>
       </link>
     </model>
-
-    <!-- Permanent High-Fidelity COCO Dataset Objects -->
-    <include>
-      <name>person</name>
-      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Walking person</uri>
-      <pose>2.0 -0.5 0 0 0 -1.57</pose>
-    </include>
-
-    <include>
-      <name>fire_hydrant</name>
-      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Fire Hydrant</uri>
-      <pose>1.6 0.0 0 0 0 0</pose>
-    </include>
-
-    <include>
-      <name>truck</name>
-      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Pickup</uri>
-      <pose>2.3 0.7 0 0 0 -2.2</pose>
-    </include>
-    <include>
-      <name>aruco_target</name>
-      <uri>model://aruco_id1_box</uri>
-      <pose>2.0 0 0.25 0 0 3.14159</pose>
-    </include>
 
   </world>
 </sdf>
