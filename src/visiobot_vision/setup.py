@@ -33,6 +33,7 @@ setup(
             'aruco_detector = visiobot_vision.aruco_detector:main',
             'perception_event_node = visiobot_vision.perception_event_node:main',
             'depth_estimator_node = visiobot_vision.depth_estimator_node:main',
+            'depth_to_pointcloud_node = visiobot_vision.depth_to_pointcloud_node:main',
         ],
     },
 )
