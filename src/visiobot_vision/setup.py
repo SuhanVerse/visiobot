@@ -1,3 +1,5 @@
+# setup.py
+
 import os
 from glob import glob
 from setuptools import find_packages, setup
@@ -34,6 +36,7 @@ setup(
             'perception_event_node = visiobot_vision.perception_event_node:main',
             'depth_estimator_node = visiobot_vision.depth_estimator_node:main',
             'depth_to_pointcloud_node = visiobot_vision.depth_to_pointcloud_node:main',
+            'visual_servo_node = visiobot_vision.visual_servo_node:main',
         ],
     },
 )
