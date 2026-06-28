@@ -15,6 +15,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -37,6 +38,7 @@ setup(
             'depth_estimator_node = visiobot_vision.depth_estimator_node:main',
             'depth_to_pointcloud_node = visiobot_vision.depth_to_pointcloud_node:main',
             'visual_servo_node = visiobot_vision.visual_servo_node:main',
+            'day28_patrol_log_node = visiobot_vision.day28_patrol_log_node:main',
         ],
     },
 )
