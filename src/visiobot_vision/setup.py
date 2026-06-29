@@ -39,6 +39,7 @@ setup(
             'depth_to_pointcloud_node = visiobot_vision.depth_to_pointcloud_node:main',
             'visual_servo_node = visiobot_vision.visual_servo_node:main',
             'day28_patrol_log_node = visiobot_vision.day28_patrol_log_node:main',
+            'day29_target_handoff_node = visiobot_vision.day29_target_handoff_node:main',
         ],
     },
 )
