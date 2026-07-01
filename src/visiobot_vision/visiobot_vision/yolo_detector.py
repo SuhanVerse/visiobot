@@ -39,6 +39,13 @@ class YoloDetector(Node):
             10
         )
 
+        # Publisher for annotated camera feed
+        self.image_pub = self.create_publisher(
+            Image,
+            '/yolo/image',
+            10
+        )
+
         self.br = CvBridge()
         self.get_logger().info("YOLO Detector Node has been started.")
 
@@ -112,6 +119,15 @@ class YoloDetector(Node):
         # 5. Publish the clean data message
         self.publisher.publish(det_array)
 
+        # 6. Publish annotated image
+        if len(results) > 0:
+            annotated_frame = results[0].plot()
+            try:
+                img_msg = self.br.cv2_to_imgmsg(annotated_frame, "bgr8")
+                img_msg.header = data.header
+                self.image_pub.publish(img_msg)
+            except CvBridgeError as e:
+                self.get_logger().error(f"Failed to publish image: {e}")
 
 def main(args=None):
     rclpy.init(args=args)

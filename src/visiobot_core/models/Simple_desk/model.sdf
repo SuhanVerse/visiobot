@@ -1,0 +1,21 @@
+<sdf version="1.7">
+  <model name="simple_desk">
+    <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>meshes/model.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">  
+        <geometry>
+          <mesh>
+            <uri>meshes/model.stl</uri>
+          </mesh>
+       </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

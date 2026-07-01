@@ -40,6 +40,7 @@ setup(
             'visual_servo_node = visiobot_vision.visual_servo_node:main',
             'day28_patrol_log_node = visiobot_vision.day28_patrol_log_node:main',
             'day29_target_handoff_node = visiobot_vision.day29_target_handoff_node:main',
+            'day30_capstone_node = visiobot_vision.day30_capstone_node:main',
         ],
     },
 )

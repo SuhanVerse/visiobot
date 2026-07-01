@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<?xml-model
+  href="http://download.ros.org/schema/package_format3.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>visp_auto_tracker</name>
+  <version>0.13.1</version>
+
+  <description>
+    Online automated pattern-based object tracker relying on visual servoing.
+
+    visp_auto_tracker wraps model-based trackers provided by ViSP visual
+    servoing library into a ROS package. The tracked object should have a
+    QRcode, Flash code, or April tag pattern. Based on the pattern, the object is
+    automaticaly detected. The detection allows then to initialise the
+    model-based trackers. When lost of tracking achieves a new detection
+    is performed that will be used to re-initialize the tracker.
+
+    This computer vision algorithm computes the pose (i.e. position and
+    orientation) of an object in an image. It is fast enough to allow
+    object online tracking using a camera.
+  </description>
+  <author>Filip Novotny</author>
+  <maintainer email="Fabien.Spindler@inria.fr">Fabien Spindler</maintainer>
+  <license>GPLv2</license>
+  <url type="website">http://wiki.ros.org/visp_auto_tracker</url>
+  <url type="repository">https://github.com/lagadic/vision_visp/tree/ros2</url>
+  <url type="bugtracker">https://github.com/lagadic/vision_visp/issues</url>
+
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>libdmtx-dev</build_depend>
+  <build_depend>message_filters</build_depend>
+  <build_depend>resource_retriever</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>visp</build_depend>
+  <build_depend>visp_bridge</build_depend>
+  <build_depend>visp_tracker</build_depend>
+  <build_depend>zbar</build_depend>
+
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>libdmtx-dev</exec_depend>
+  <exec_depend>message_filters</exec_depend>
+  <exec_depend>resource_retriever</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>visp</exec_depend>
+  <exec_depend>visp_bridge</exec_depend>
+  <exec_depend>visp_tracker</exec_depend>
+  <exec_depend>zbar</exec_depend>
+  <exec_depend>usb_cam</exec_depend>
+
+  <!-- Recommanded: https://docs.ros.org/en/foxy/Tutorials/Intermediate/Launch/Creating-Launch-Files.html -->
+  <exec_depend>ros2launch</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>
