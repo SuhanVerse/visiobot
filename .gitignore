@@ -55,8 +55,17 @@ build/
 install/
 log/
 
-# Local guides (not for version control)
-guide/*
-DRIFT.md
+# Downloaded third-party tutorial bundles are preserved separately.
 tutorials/*
-LSPPDAY60/*
+
+# Cross-project EdumentX notes are kept locally and in the verified Win archive.
+/LSPPDAY60/OLLAMA_HANDOFF.md
+/LSPPDAY60/docs/gemini-code-1780213051279.py
+
+# Local credentials, agent state and generated Python/test data.
+.env
+.env.*
+!.env.example
+/.drift/
+__pycache__/
+.pytest_cache/

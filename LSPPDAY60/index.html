@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VisioBot 60-Day Roadmap</title>
+    <meta name="description" content="Daily AI-robotics roadmap with tasks, resources, courses, and YouTube guidance for LSPP2026.">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="VisioBot roadmap home">
+        <span class="brand-mark">VB</span>
+        <span>
+          <strong>VisioBot Roadmap</strong>
+          <small>LSPP2026 daily learning site</small>
+        </span>
+      </a>
+      <nav class="header-actions" aria-label="Primary">
+        <a href="#roadmap">Roadmap</a>
+        <a href="#resources">Sources</a>
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle color theme">
+          <i data-lucide="sun"></i>
+        </button>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="workspace" aria-labelledby="pageTitle">
+        <div class="intro-panel">
+          <p class="eyebrow">AI Robotics Engineer track</p>
+          <h1 id="pageTitle">60 days to build a simulation-first, edge-aware VisioBot portfolio project.</h1>
+          <p class="intro-copy">Built from the local docs folder and enriched with current web resources: ROS2 Jazzy, Gazebo Harmonic, YOLO vision, TinyML on ESP32, micro-ROS, and final demo packaging.</p>
+          <div class="metrics" aria-label="Roadmap metrics">
+            <div>
+              <strong>60</strong>
+              <span>days</span>
+            </div>
+            <div>
+              <strong>4</strong>
+              <span>phases</span>
+            </div>
+            <div>
+              <strong>240+</strong>
+              <span>tasks</span>
+            </div>
+            <div>
+              <strong>150+</strong>
+              <span>links</span>
+            </div>
+          </div>
+        </div>
+        <figure class="visual-panel">
+          <img src="assets/roadmap-visual.png" alt="VisioBot roadmap illustration showing robotics, vision, and edge AI phases">
+        </figure>
+      </section>
+
+      <section class="control-bar" id="roadmap" aria-label="Roadmap controls">
+        <div class="search-wrap">
+          <i data-lucide="search"></i>
+          <input id="searchInput" type="search" placeholder="Search ROS2, YOLO, ESP32, Nav2..." autocomplete="off">
+        </div>
+        <div class="phase-buttons" id="phaseButtons" aria-label="Phase filters"></div>
+      </section>
+
+      <section class="roadmap-grid" aria-label="Daily roadmap explorer">
+        <aside class="day-list-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Daily queue</p>
+              <h2>Choose a day</h2>
+            </div>
+            <button class="ghost-button" id="resetProgress" type="button">
+              <i data-lucide="rotate-ccw"></i>
+              Reset
+            </button>
+          </div>
+          <div class="progress-line" aria-label="Completion progress">
+            <span id="progressFill"></span>
+          </div>
+          <p class="progress-note" id="progressNote">0 of 60 days completed</p>
+          <div class="day-list" id="dayList"></div>
+        </aside>
+
+        <section class="day-detail-panel" id="dayDetail" aria-live="polite"></section>
+      </section>
+
+      <section class="source-section" id="resources" aria-labelledby="sourceTitle">
+        <div class="section-heading">
+          <p class="eyebrow">Research base</p>
+          <h2 id="sourceTitle">Local docs and web sources used</h2>
+        </div>
+        <div class="source-grid" id="sourceGrid"></div>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

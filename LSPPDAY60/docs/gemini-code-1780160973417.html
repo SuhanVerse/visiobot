@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LSPP2026 60-Day Roadmap: AI-Powered Robotics</title>
+<style>
+    :root {
+        --bg-main: #f8fafc;
+        --bg-card: #ffffff;
+        --text-main: #0f172a;
+        --text-secondary: #334155;
+        --text-tertiary: #64748b;
+        --border-color: #e2e8f0;
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --success: #059669;
+        
+        /* Tag Colors */
+        --tag-ros-bg: #dbeafe; --tag-ros-txt: #1e40af;
+        --tag-sim-bg: #dcfce7; --tag-sim-txt: #166534;
+        --tag-cv-bg: #fef08a; --tag-cv-txt: #854d0e;
+        --tag-edge-bg: #fee2e2; --tag-edge-txt: #991b1b;
+        --tag-hw-bg: #ffedd5; --tag-hw-txt: #9a3412;
+        --tag-cap-bg: #f3e8ff; --tag-cap-txt: #6b21a8;
+
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: var(--bg-main); color: var(--text-main); line-height: 1.6; padding: 0; margin: 0; }
+    
+    header { background-color: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 2rem 1rem; text-align: center; }
+    header h1 { font-size: 1.75rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem; }
+    header p { color: var(--text-secondary); font-size: 0.95rem; font-weight: 500; }
+
+    .nav-container { display: flex; justify-content: center; background: var(--bg-card); padding: 0.75rem; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 0.5rem; }
+    .nav-btn { background: none; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .nav-btn:hover { background: var(--border-color); }
+    .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .main-container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+
+    /* Overview Styles */
+    .overview-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+    @media (min-width: 768px) { .overview-grid { grid-template-columns: 1fr 1fr; } }
+    .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .card h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; }
+    .card h3 { font-size: 1rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+    .card ul { padding-left: 1.25rem; margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.95rem; }
+    .card pre { background: var(--bg-main); padding: 1rem; border-radius: 0.5rem; font-size: 0.85rem; overflow-x: auto; border: 1px solid var(--border-color); }
+
+    /* Search Bar */
+    .search-wrapper { margin-bottom: 1.5rem; }
+    .search-input { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+    .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+    /* Day Cards */
+    .day-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 0.5rem; margin-bottom: 1rem; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+    .day-card:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .day-header { padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: var(--bg-card); }
+    .day-header:hover { background: #f8fafc; }
+    .day-info { display: flex; align-items: center; gap: 1rem; flex: 1; }
+    .day-num { background: var(--primary); color: #fff; font-weight: 700; font-size: 0.85rem; padding: 0.25rem 0.6rem; border-radius: 0.375rem; white-space: nowrap; }
+    .day-title { font-weight: 600; font-size: 1.05rem; }
+    .day-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-left: 1rem; }
+    .tag { font-size: 0.75rem; font-weight: 600; padding: 0.1rem 0.5rem; border-radius: 9999px; text-transform: uppercase; }
+    .icon-chevron { font-size: 1.2rem; color: var(--text-tertiary); transition: transform 0.3s; }
+    .day-card.open .icon-chevron { transform: rotate(180deg); }
+    
+    .day-body { display: none; border-top: 1px solid var(--border-color); padding: 1.25rem; background: #fafafa; }
+    .day-card.open .day-body { display: block; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem; }
+    @media (min-width: 768px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    
+    .sec-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-tertiary); margin-bottom: 0.25rem; }
+    .sec-content { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1rem; }
+    .sec-content ul { padding-left: 1.25rem; }
+    .sec-content li { margin-bottom: 0.25rem; }
+
+    /* Tweet Box */
+    .tweet-box { background: var(--bg-card); border: 1px solid #bae6fd; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; position: relative; }
+    .tweet-text { font-family: monospace; font-size: 0.85rem; color: var(--text-secondary); white-space: pre-wrap; margin-bottom: 0.5rem; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: var(--primary); color: white; border: none; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 0.25rem; cursor: pointer; }
+    .copy-btn:hover { background: var(--primary-hover); }
+
+    /* Links */
+    .link-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .link-item { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--primary); text-decoration: none; font-weight: 500; }
+    .link-item:hover { text-decoration: underline; }
+
+    /* Specific Tag Colors */
+    .tag-ros2 { background: var(--tag-ros-bg); color: var(--tag-ros-txt); }
+    .tag-sim { background: var(--tag-sim-bg); color: var(--tag-sim-txt); }
+    .tag-vision { background: var(--tag-cv-bg); color: var(--tag-cv-txt); }
+    .tag-edgeai { background: var(--tag-edge-bg); color: var(--tag-edge-txt); }
+    .tag-hardware { background: var(--tag-hw-bg); color: var(--tag-hw-txt); }
+    .tag-capstone { background: var(--tag-cap-bg); color: var(--tag-cap-txt); }
+    
+    .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>LSPP2026: AI-Powered Robotics Roadmap</h1>
+    <p>Suhan Khadka's 60-Day Challenge | June 1 – July 30, 2026</p>
+</header>
+
+<nav class="nav-container" id="navContainer">
+    <button class="nav-btn active" data-target="overview">Overview & Setup</button>
+    <button class="nav-btn" data-target="all">All Days</button>
+    <button class="nav-btn" data-target="p1">Phase 1 (1-15)</button>
+    <button class="nav-btn" data-target="p2">Phase 2 (16-30)</button>
+    <button class="nav-btn" data-target="p3">Phase 3 (31-45)</button>
+    <button class="nav-btn" data-target="p4">Phase 4 (46-60)</button>
+</nav>
+
+<div class="main-container">
+    
+    <div id="view-overview" class="view-section">
+        <div class="overview-grid">
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2>🎯 The "VisioBot" Capstone Goal</h2>
+                <p>Welcome to the <strong>AI-Powered Robotics</strong> track! This roadmap is meticulously designed for an environment with <strong>Ubuntu 24.04 LTS</strong>. By Day 60, you will build <em>VisioBot</em>—a robot simulated in <strong>Gazebo Harmonic</strong> running <strong>ROS 2 Jazzy</strong>, equipped with <strong>YOLOv8</strong> vision, autonomous navigation (<strong>Nav2</strong>), and controlled via edge AI hand gestures running on an <strong>ESP32</strong> (via <strong>micro-ROS</strong>).</p>
+            </div>
+
+            <div class="card">
+                <h2>💻 Software Setup (Crucial)</h2>
+                <ul>
+                    <li><strong>OS:</strong> Ubuntu 24.04 LTS (Native preferred).</li>
+                    <li><strong>ROS Distribution:</strong> ROS 2 Jazzy Jalisco <em>(Do not use Humble, it is for Ubuntu 22.04)</em>.</li>
+                    <li><strong>Simulation:</strong> Gazebo Harmonic <em>(Default for Jazzy)</em>.</li>
+                    <li><strong>Languages:</strong> Python, C++, Rust (optional for ESP32).</li>
+                    <li><strong>Edge AI Tools:</strong> TensorFlow Lite, Edge Impulse.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>🔌 Hardware List (Light & Simulation-First)</h2>
+                <ul>
+                    <li><strong>MCU:</strong> ESP32 Development Board.</li>
+                    <li><strong>Wiring:</strong> Breadboard, Jumper Wires, Micro-USB/USB-C Cable, Resistor pack.</li>
+                    <li><strong>Sensors:</strong> MPU6050 (IMU), HC-SR04 (Ultrasonic).</li>
+                    <li><strong>Vision:</strong> Standard Laptop Webcam or external USB camera.</li>
+                    <li><em>Note: No 3D printer or heavy chassis required. Hardware is solely for the edge AI controller.</em></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>📁 GitHub Repo Structure</h2>
+                <pre>
+LSPP2026-VisioBot/
+├── 01_ros2_jazzy_ws/    # Phase 1: Core & Nav
+├── 02_vision_ws/        # Phase 2: YOLO & OpenCV
+├── 03_edge_ai_esp32/    # Phase 3: micro-ROS & TFLite
+├── 04_visiobot_final/   # Phase 4: Integration
+└── README.md            # Master Log & Docs</pre>
+            </div>
+
+            <div class="card">
+                <h2>📅 Weekly Checkpoints</h2>
+                <ul>
+                    <li><strong>Week 1:</strong> Core ROS 2 Jazzy Concepts.</li>
+                    <li><strong>Week 2:</strong> URDF & Gazebo Harmonic Sim.</li>
+                    <li><strong>Week 3:</strong> CV Basics & YOLOv8 Node.</li>
+                    <li><strong>Week 4:</strong> Advanced Tracking & Vis-Servo.</li>
+                    <li><strong>Week 5:</strong> ESP32 & micro-ROS Jazzy.</li>
+                    <li><strong>Week 6:</strong> Edge Impulse & TFLite on MCU.</li>
+                    <li><strong>Week 7:</strong> Architecture & Full Integration.</li>
+                    <li><strong>Week 8:</strong> Polish, Docs, and Delivery.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-roadmap" class="view-section hidden">
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search days, tasks, or tags (e.g., 'Gazebo', 'YOLO', 'ROS2')...">
+        </div>
+        <div id="daysContainer">
+            </div>
+    </div>
+
+</div>
+
+<script>
+// Data structure for the 60 days to keep HTML clean and avoid output truncation.
+const roadmapData = [
+  // PHASE 1
+  {d:1, p:1, t:"ROS 2 Jazzy & Ubuntu 24.04 Setup", obj:"Install ROS 2 Jazzy on Ubuntu 24.04 and configure the workspace.", tsk:["Install Ubuntu 24.04 LTS (native or WSL2).","Install ROS 2 Jazzy Desktop following official docs.","Create a ros2_ws and src folder.","Initialize a git repository for your 60-day challenge."], out:"A fully functioning ROS 2 Jazzy environment ready for development.", time:"2h", del:"Terminal screenshot running the ROS 2 talker/listener demo.", ref:"Setting up the environment properly prevents 90% of future debugging headaches.", tw:"Day 1 of #LSPP2026! Kickstarting the AI-Robotics track. Installed ROS 2 Jazzy on Ubuntu 24.04 and ran my first talker/listener node! 🚀 #ROS2 #Robotics #LearnInPublic @lftechnology", ev:"Screenshot of terminal with talker/listener.", ln:[{txt:"ROS 2 Jazzy Installation",url:"https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html"},{txt:"Creating a Workspace",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Creating-A-Workspace/Creating-A-Workspace.html"}], tag:["ROS2","Setup"]},
+  {d:2, p:1, t:"Packages & Nodes (Python/C++)", obj:"Understand how to create ROS 2 packages and write basic nodes.", tsk:["Create a Python package named 'visiobot_core'.","Write a simple publisher node in Python.","Write a simple subscriber node in Python.","Build the workspace using 'colcon build'."], out:"Ability to create and build custom ROS 2 packages.", time:"2.5h", del:"Two terminals showing custom publisher and subscriber communicating.", ref:"Nodes are the fundamental building blocks; mastering them is step one.", tw:"Day 2/60: Wrote my first custom ROS 2 Jazzy nodes in Python! Publisher and Subscriber talking perfectly. 📡 #ROS2 #Python #LSPP2026", ev:"Code snippet of the publisher node.", ln:[{txt:"Creating a Package",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html"},{txt:"Writing a Simple Pub/Sub (Python)",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html"}], tag:["ROS2"]},
+  {d:3, p:1, t:"Mastering ROS 2 Topics", obj:"Deep dive into ROS 2 Topics, message types, and CLI tools.", tsk:["Use 'ros2 topic list' and 'ros2 topic echo'.","Understand standard message types (std_msgs).","Create a node that processes string messages and publishes modified strings.","Use rqt_graph to visualize your topic connections."], out:"Strong command over ROS 2 CLI tools for debugging topics.", time:"2h", del:"rqt_graph screenshot showing your custom nodes.", ref:"CLI tools are a robotics engineer's best friend for debugging.", tw:"Day 3/60: Deep dive into ROS 2 Topics and CLI tools. Using rqt_graph makes visualizing the network so satisfying! 🕸️ #ROS2 #LSPP2026", ev:"Screenshot of rqt_graph.", ln:[{txt:"Understanding Topics",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Topics/Understanding-ROS2-Topics.html"},{txt:"Using rqt_console",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Using-Rqt-Console/Using-Rqt-Console.html"}], tag:["ROS2"]},
+  {d:4, p:1, t:"Services (Client/Server)", obj:"Implement synchronous request-response communication.", tsk:["Understand the difference between Topics and Services.","Write a Service Server that adds two numbers.","Write a Service Client to call the server.","Use 'ros2 service call' from the terminal."], out:"Ability to handle synchronous tasks in ROS 2.", time:"2.5h", del:"Terminal output showing a successful service call.", ref:"Services are perfect for distinct, quick computations where the system must wait.", tw:"Day 4/60: Moving from continuous streams to synchronous requests! Built a Service Client & Server in ROS 2 Jazzy today. 🔄 #LSPP2026", ev:"Terminal executing 'ros2 service call'.", ln:[{txt:"Understanding Services",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Services/Understanding-ROS2-Services.html"},{txt:"Writing a Service (Python)",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Service-And-Client.html"}], tag:["ROS2"]},
+  {d:5, p:1, t:"Actions for Long Tasks", obj:"Implement Actions for long-running, interruptible tasks.", tsk:["Learn the Action structure (Goal, Feedback, Result).","Write an Action Server that simulates a long movement.","Write an Action Client to send goals and print feedback.","Cancel an action mid-execution."], out:"Mastery of asynchronous long-running tasks with feedback.", time:"3h", del:"Terminal showing action feedback percentages and final result.", ref:"Actions are crucial for real robots (like 'drive to this location').", tw:"Day 5/60: Actions in ROS 2! These are essential for long-running tasks like robot navigation where you need constant feedback. 📍 #LSPP2026 #Robotics", ev:"Snippet of Action definition file (.action).", ln:[{txt:"Understanding Actions",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Actions/Understanding-ROS2-Actions.html"},{txt:"Writing an Action Server/Client",url:"https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Writing-an-Action-Server-Client/Py.html"}], tag:["ROS2"]},
+  {d:6, p:1, t:"Parameters & Launch Files", obj:"Manage node configurations and launch multiple nodes.", tsk:["Declare and use parameters in a Python node.","Write a Python launch file to start your pub, sub, and service nodes together.","Change parameters dynamically via CLI.","Organize your package to install launch files properly."], out:"Ability to scale up projects using robust launch scripts.", time:"2h", del:"Single terminal command launching 3+ nodes simultaneously.", ref:"Launch files take ROS 2 from a collection of scripts to a unified system.", tw:"Day 6/60: No more opening 5 different terminals! Wrote Python launch files to spin up my entire ROS 2 Jazzy workspace at once. 🚀 #LSPP2026", ev:"Code snippet of the launch.py file.", ln:[{txt:"Understanding Parameters",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Parameters/Understanding-ROS2-Parameters.html"},{txt:"Creating a Launch File",url:"https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Launch/Creating-Launch-Files.html"}], tag:["ROS2"]},
+  {d:7, p:1, t:"TF2 (Transformations)", obj:"Understand coordinate frames and spatial transformations.", tsk:["Install tf2_ros and related packages.","Learn the concept of tf trees (world -> base_link).","Write a static tf broadcaster node.","Use rqt_tf_tree and tf2_echo to debug."], out:"Solid grasp of robot spatial logic and coordinate math.", time:"3h", del:"A generated PDF/screenshot of rqt_tf_tree.", ref:"TF2 is the hardest concept for beginners, but it's the backbone of robotics.", tw:"Day 7/60: Tackling TF2 (Transforms). Understanding how robots calculate where their sensors are relative to their base is mind-bending but awesome! 📐 #ROS2 #LSPP2026", ev:"Image of an rqt_tf_tree graph.", ln:[{txt:"Introduction to tf2",url:"https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html"},{txt:"Writing a Static Broadcaster",url:"https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Tf2/Writing-A-Tf2-Static-Broadcaster-Py.html"}], tag:["ROS2"]},
+  {d:8, p:1, t:"URDF & Robot Modeling", obj:"Create a physical model of VisioBot using URDF.", tsk:["Learn URDF syntax (links, joints).","Create a basic 2-wheeled differential drive chassis in URDF.","Add visual and collision properties.","Write a launch file using robot_state_publisher."], out:"A custom 3D robot model ready for simulation.", time:"3h", del:"URDF XML file defining VisioBot.", ref:"Visualizing the robot chassis helps anchor the abstract code into reality.", tw:"Day 8/60: Built the physical skeleton of my robot 'VisioBot' using URDF today. Defining links and joints purely in XML! 🤖 #LSPP2026 #Robotics", ev:"Snippet of URDF code.", ln:[{txt:"Building a Visual Robot Model",url:"https://docs.ros.org/en/jazzy/Tutorials/Intermediate/URDF/Building-a-Visual-Robot-Model-with-URDF-from-Scratch.html"}], tag:["Sim"]},
+  {d:9, p:1, t:"Visualizing in RViz2", obj:"Spawn and interact with the URDF model in RViz2.", tsk:["Launch the URDF in RViz2.","Use joint_state_publisher_gui to move the wheels manually.","Configure RViz2 displays (RobotModel, TF).","Save the RViz2 configuration file."], out:"Interactive visual debugging environment configured.", time:"2h", del:"Screenshot of VisioBot chassis rendering in RViz2.", ref:"RViz2 shows what the robot 'thinks' is happening. Gazebo shows what is *actually* happening.", tw:"Day 9/60: Bringing VisioBot into RViz2! Using joint_state_publisher to test the wheel rotations. It's alive! 👁️ #ROS2 #RViz2 #LSPP2026", ev:"Screenshot of RViz2 with the robot model.", ln:[{txt:"Using URDF with robot_state_publisher",url:"https://docs.ros.org/en/jazzy/Tutorials/Intermediate/URDF/Using-URDF-with-Robot-State-Publisher.html"}], tag:["Sim"]},
+  {d:10, p:1, t:"Gazebo Harmonic Setup", obj:"Integrate ROS 2 Jazzy with Gazebo Harmonic.", tsk:["Install ros-jazzy-ros-gz packages.","Understand the ros_gz_bridge.","Create a simple Gazebo world file (.sdf).","Launch Gazebo Harmonic from a ROS 2 launch file."], out:"Connected ROS 2 and Gazebo Harmonic environments.", time:"3h", del:"Gazebo Harmonic running an empty world launched via ROS 2.", ref:"Gazebo Harmonic is the new standard (Ignition is deprecated). Adapting to modern tools is vital.", tw:"Day 10/60: Integrated ROS 2 Jazzy with Gazebo Harmonic! The modern simulation stack is looking incredibly sleek. 🌐 #Gazebo #ROS2 #LSPP2026", ev:"Screenshot of Gazebo Harmonic UI.", ln:[{txt:"Gazebo Harmonic Docs",url:"https://gazebosim.org/docs/harmonic/tutorials/"},{txt:"ROS 2 Integration (ros_gz)",url:"https://gazebosim.org/docs/harmonic/ros2_integration/"}], tag:["Sim"]},
+  {d:11, p:1, t:"Spawning VisioBot in Gazebo", obj:"Bring the URDF model into the physics simulator.", tsk:["Convert/Adapt URDF to be compatible with Gazebo (add inertial tags).","Use the 'ros_gz_sim' spawn node in your launch file.","Verify gravity and collisions are working on the chassis.","Bridge the /tf topics."], out:"A physical robot responding to gravity in simulation.", time:"3h", del:"Video/GIF of the robot spawning and dropping onto the ground plane in Gazebo.", ref:"Getting inertias right is tedious but physically accurate simulation relies on it.", tw:"Day 11/60: Spawned VisioBot into Gazebo Harmonic physics engine today! Adding inertial properties so it falls and collides realistically. 💥 #Gazebo #LSPP2026", ev:"Short GIF of robot dropping into Gazebo world.", ln:[{txt:"Spawning URDF in Gazebo",url:"https://gazebosim.org/docs/harmonic/ros2_integration/#spawning-a-urdf"}], tag:["Sim"]},
+  {d:12, p:1, t:"Differential Drive Plugin", obj:"Make the robot move using ROS 2 commands.", tsk:["Add the Gazebo DiffDrive plugin to your URDF/SDF.","Configure the plugin topics (cmd_vel, odom).","Bridge cmd_vel and odom between ROS 2 and Gazebo.","Drive the robot using 'ros2 run teleop_twist_keyboard'."], out:"A fully drivable simulated robot.", time:"3h", del:"Terminal running teleop alongside Gazebo showing the robot moving.", ref:"First time driving the robot is the 'Hello World' of actual robotics.", tw:"Day 12/60: WE HAVE MOVEMENT! 🚗 Hooked up the DiffDrive plugin in Gazebo Harmonic and drove VisioBot around using my keyboard! #ROS2 #LSPP2026", ev:"Split screen screenshot: teleop terminal and Gazebo.", ln:[{txt:"Gazebo Harmonic Plugins",url:"https://gazebosim.org/docs/harmonic/using_plugins/"},{txt:"ROS 2 Teleop Setup",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Topics/Understanding-ROS2-Topics.html#ros2-topic-pub"}], tag:["Sim"]},
+  {d:13, p:1, t:"SLAM Toolbox Intro", obj:"Generate a map of a Gazebo world using simulated LiDAR.", tsk:["Add a LiDAR sensor (GPU Ray) to VisioBot in URDF.","Bridge the /scan topic.","Install and configure slam_toolbox.","Drive the robot around a custom Gazebo world to generate a 2D occupancy grid map."], out:"A generated map file (.yaml and .pgm).", time:"3.5h", del:"Screenshot of RViz2 showing the actively generating map.", ref:"SLAM bridges the gap between hardware sensors and spatial awareness.", tw:"Day 13/60: Mapping the digital world! Attached a simulated LiDAR and used SLAM Toolbox to map a custom Gazebo environment. 🗺️ #SLAM #ROS2 #LSPP2026", ev:"Screenshot of the generated map in RViz2.", ln:[{txt:"SLAM Toolbox GitHub",url:"https://github.com/SteveMacenski/slam_toolbox"},{txt:"Gazebo Sensors",url:"https://gazebosim.org/docs/harmonic/sensors/"}], tag:["ROS2","Sim"]},
+  {d:14, p:1, t:"Nav2 Stack Fundamentals", obj:"Configure Nav2 for autonomous point-to-point navigation.", tsk:["Install ros-jazzy-navigation2 and nav2-bringup.","Configure costmaps (global and local) for VisioBot.","Launch Nav2 using the map generated yesterday.","Use RViz2 '2D Goal Pose' to command the robot."], out:"A robot capable of autonomous path planning and obstacle avoidance.", time:"4h", del:"Video of the robot autonomously navigating around an obstacle to reach a goal.", ref:"Nav2 is highly complex; focus on getting the default parameters working first.", tw:"Day 14/60: Autonomous Navigation achieved! Configured Nav2 stack, and VisioBot can now plan paths and dodge obstacles on its own. 🧠🤖 #Nav2 #LSPP2026", ev:"Screenshot of Nav2 costmaps in RViz2.", ln:[{txt:"Nav2 Official Documentation",url:"https://docs.nav2.org/"},{txt:"Nav2 Getting Started",url:"https://docs.nav2.org/getting_started/index.html"}], tag:["ROS2","Sim"]},
+  {d:15, p:1, t:"Phase 1 Capstone", obj:"Consolidate Phase 1 into a clean, reproducible launch package.", tsk:["Create a master launch file bringing up Gazebo, RViz, SLAM/Nav2, and the robot.","Document the workspace setup in a README.md.","Push Phase 1 to GitHub.","Review Jazzy/Harmonic specifics learned."], out:"A professional, portfolio-ready simulation workspace.", time:"3h", del:"GitHub repository link with a comprehensive README.", ref:"Phase 1 built the body and the navigation brain. Next phase gives it eyes.", tw:"Day 15/60: Phase 1 Complete! 🎉 Built a fully autonomous, simulated robot stack using ROS 2 Jazzy and Gazebo Harmonic. Code is pushed and documented. Ready for Computer Vision! #LSPP2026", ev:"Link to GitHub Repo.", ln:[{txt:"Writing Good READMEs",url:"https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes"}], tag:["Capstone"]},
+
+  // PHASE 2
+  {d:16, p:2, t:"ROS 2 Image Transport", obj:"Understand how images move through a ROS 2 network.", tsk:["Add a simulated camera sensor to VisioBot in Gazebo.","Bridge the image topic to ROS 2.","Use rqt_image_view to view the camera feed.","Analyze bandwidth usage of raw images."], out:"Live camera feed inside the ROS 2 ecosystem.", time:"2h", del:"Screenshot of rqt_image_view showing the Gazebo camera perspective.", ref:"Images are huge data streams; understanding compression and transport is key.", tw:"Day 16/60: Kicking off Phase 2 - Computer Vision! VisioBot now has eyes. Mounted a simulated camera in Gazebo and streaming it via ROS 2 topics. 📷 #LSPP2026 #ComputerVision", ev:"Screenshot of rqt_image_view.", ln:[{txt:"Image Transport Tutorial",url:"https://docs.ros.org/en/jazzy/Tutorials/Advanced/Image-Transport.html"},{txt:"Gazebo Camera Sensor",url:"https://gazebosim.org/docs/harmonic/sensors/"}], tag:["Vision"]},
+  {d:17, p:2, t:"CvBridge & OpenCV Basics", obj:"Bridge ROS 2 Image messages to OpenCV format.", tsk:["Install OpenCV and cv_bridge.","Write a Python node that subscribes to the camera topic.","Convert ROS Image to OpenCV format.","Apply a basic OpenCV filter (e.g., Canny edge detection) and republish."], out:"Ability to manipulate ROS image streams with OpenCV.", time:"3h", del:"Terminal output and rqt_image_view showing edge-detected output.", ref:"cv_bridge is the essential glue between ROS architecture and CV algorithms.", tw:"Day 17/60: Bridged the gap between ROS 2 and OpenCV using cv_bridge! Successfully applying live edge-detection filters to the robot's camera feed. 👁️💻 #OpenCV #LSPP2026", ev:"Side-by-side raw image and edge-detected image.", ln:[{txt:"cv_bridge Tutorial",url:"https://docs.ros.org/en/jazzy/Tutorials/Advanced/CV-Bridge.html"},{txt:"OpenCV Image Processing",url:"https://docs.opencv.org/4.x/d2/d96/tutorial_py_table_of_contents_imgproc.html"}], tag:["Vision"]},
+  {d:18, p:2, t:"Object Detection Concepts", obj:"Review modern object detection architectures.", tsk:["Study the difference between Image Classification, Object Detection, and Segmentation.","Understand YOLO architecture concepts (single-shot detection, anchor boxes).","Setup a Python virtual environment for deep learning outside ROS 2 to test."], out:"Solid theoretical foundation before implementation.", time:"2h", del:"A short markdown summary in your repo of how YOLO works.", ref:"Don't treat ML models as black boxes; understand the tensor shapes in and out.", tw:"Day 18/60: Taking a step back to study the theory behind YOLO and single-shot object detectors. Setting up the deep learning environments for tomorrow! 🧠 #MachineLearning #LSPP2026", ev:"Photo of hand-drawn notes on YOLO architecture.", ln:[{txt:"Understanding Object Detection",url:"https://huggingface.co/tasks/object-detection"},{txt:"Ultralytics Docs",url:"https://docs.ultralytics.com/"}], tag:["Vision"]},
+  {d:19, p:2, t:"YOLOv8 Setup & Inference", obj:"Run YOLOv8 on images and video streams.", tsk:["Install ultralytics package (pip install ultralytics).","Download yolov8n.pt (Nano model for speed).","Write a standalone Python script to run inference on a local video file.","Extract bounding box coordinates and class labels from the result object."], out:"Working YOLOv8 inference pipeline in pure Python.", time:"2.5h", del:"Terminal printing bounding box coordinates.", ref:"The Nano model is crucial for robotics where CPU/GPU resources are limited.", tw:"Day 19/60: YOLOv8 is running! Implemented the Ultralytics Nano model in Python to extract live bounding box coordinates. It's incredibly fast. ⚡ #YOLOv8 #AI #LSPP2026", ev:"Screenshot of bounding box output.", ln:[{txt:"Ultralytics Quickstart",url:"https://docs.ultralytics.com/quickstart/"},{txt:"YOLOv8 Python Usage",url:"https://docs.ultralytics.com/usage/python/"}], tag:["Vision"]},
+  {d:20, p:2, t:"YOLOv8 as a ROS 2 Node", obj:"Integrate the YOLOv8 pipeline into a ROS 2 node.", tsk:["Create a new package 'visiobot_vision'.","Write a node subscribing to the camera topic, running YOLO inference, and publishing custom 'DetectionArray' messages.","Republish an image with drawn bounding boxes for rqt_image_view."], out:"A realtime object detection ROS 2 pipeline.", time:"3.5h", del:"RViz2 or rqt showing live bounding boxes on simulated objects.", ref:"Combining ROS callbacks with heavy ML inference requires careful handling to avoid lag.", tw:"Day 20/60: Full Integration! YOLOv8 is now officially a ROS 2 node running on VisioBot's camera feed. Publishing detection arrays directly into the ROS network! 🎯 #ROS2 #YOLOv8 #LSPP2026", ev:"Screenshot of rqt_image_view with YOLO bounding boxes.", ln:[{txt:"Ultralytics YOLO Docs",url:"https://docs.ultralytics.com/"},{txt:"ROS 2 Custom Messages",url:"https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Custom-ROS2-Interfaces.html"}], tag:["Vision","ROS2"]},
+  {d:21, p:2, t:"Object Tracking (ByteTrack)", obj:"Maintain object identities across frames.", tsk:["Understand the difference between detection and tracking.","Enable the built-in ByteTrack tracker in Ultralytics YOLOv8 (`model.track()`).","Publish the object ID alongside the bounding box in your ROS 2 node.","Test with multiple identical objects in Gazebo."], out:"Node capable of tracking unique objects persistently.", time:"3h", del:"Terminal output showing persistent IDs for objects.", ref:"Tracking is required for logic like 'follow THAT specific person'.", tw:"Day 21/60: Upgraded VisioBot's vision with ByteTrack! Now it doesn't just detect objects, it tracks their unique identities across frames. 🆔 #ComputerVision #LSPP2026", ev:"Snippet of terminal output showing tracking IDs.", ln:[{txt:"Ultralytics Tracking Docs",url:"https://docs.ultralytics.com/modes/track/"}], tag:["Vision"]},
+  {d:22, p:2, t:"ArUco Marker Basics", obj:"Detect fiducial markers for precise pose estimation.", tsk:["Generate ArUco markers using OpenCV.","Place a marker texture onto a box in the Gazebo world.","Write a ROS 2 node using OpenCV's `aruco.detectMarkers()` to find it in the camera feed."], out:"Reliable detection of precise visual markers.", time:"2.5h", del:"Image feed highlighting the detected ArUco marker corners.", ref:"YOLO is great for semantic 'what is this', ArUco is perfect for precise 'exactly where is this'.", tw:"Day 22/60: Added ArUco marker detection! While YOLO gives semantic understanding, ArUco markers provide millimeter-perfect reference points for robotics. 📍 #OpenCV #LSPP2026", ev:"Screenshot of detected ArUco marker.", ln:[{txt:"OpenCV ArUco Detection",url:"https://docs.opencv.org/4.x/d5/dae/tutorial_aruco_detection.html"}], tag:["Vision"]},
+  {d:23, p:2, t:"ArUco Pose Estimation", obj:"Calculate 3D pose from a 2D ArUco marker.", tsk:["Extract camera intrinsics (camera_info topic).","Use `cv2.solvePnP` to estimate the marker's 3D pose relative to the camera.","Publish the marker's pose as a TF2 transform."], out:"Realtime 3D localization of an object using monocular vision.", time:"3.5h", del:"RViz2 displaying a TF frame explicitly located at the marker's position.", ref:"This is where 2D pixels translate into 3D robot workspace coordinates.", tw:"Day 23/60: The math gets real! Used solvePnP to convert 2D ArUco pixels into a full 3D spatial transform in RViz2. VisioBot knows exactly where the target is. 📐 #TF2 #ROS2 #LSPP2026", ev:"Screenshot of RViz2 showing the new TF frame.", ln:[{txt:"OpenCV Pose Estimation",url:"https://docs.opencv.org/4.x/d5/d1f/calib3d_solvePnP.html"},{txt:"TF2 Broadcaster",url:"https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Tf2/Writing-A-Tf2-Broadcaster-Py.html"}], tag:["Vision"]},
+  {d:24, p:2, t:"Monocular Depth (MiDaS)", obj:"Estimate depth from a standard 2D camera.", tsk:["Understand limitations of purely 2D cameras.","Load a MiDaS model via PyTorch Hub (or TFLite).","Run inference on the camera stream to generate a depth map.","Publish the depth map as a ROS `sensor_msgs/Image`."], out:"A simulated RGB-D sensor using only ML.", time:"3h", del:"Side-by-side view of RGB feed and generated Depth map.", ref:"MiDaS provides relative depth, which is amazing for obstacle avoidance when LiDAR fails.", tw:"Day 24/60: Who needs an expensive depth camera? Used the MiDaS ML model to generate a real-time depth map from a standard 2D webcam feed in ROS 2! 🌌 #DeepLearning #LSPP2026", ev:"Side by side RGB and Depth maps.", ln:[{txt:"MiDaS PyTorch Hub",url:"https://pytorch.org/hub/intelisl_midas_v2/"}], tag:["Vision"]},
+  {d:25, p:2, t:"PointCloud2 Basics", obj:"Understand 3D spatial data representation in ROS 2.", tsk:["Replace the standard camera in Gazebo with an RGB-D camera (realsense simulation).","Subscribe to the `sensor_msgs/PointCloud2` topic.","Visualize the point cloud in RViz2.","Write a basic node to read point cloud data using `sensor_msgs_py.point_cloud2`."], out:"Familiarity with manipulating 3D point clouds.", time:"2h", del:"RViz2 screenshot showing full 3D point cloud of the environment.", ref:"Point clouds are heavy. Efficient processing is required.", tw:"Day 25/60: Upgraded to an RGB-D sensor in simulation. Working with PointCloud2 data in ROS 2 is fascinating—seeing the world in 3D data points! 🧊 #ROS2 #LSPP2026", ev:"Screenshot of RViz2 point cloud.", ln:[{txt:"PointCloud2 Message",url:"http://docs.ros.org/en/jazzy/p/sensor_msgs/interfaces/msg/PointCloud2.html"}], tag:["Vision"]},
+  {d:26, p:2, t:"PCL (Point Cloud Library)", obj:"Filter and process point clouds.", tsk:["Install `pcl_ros` or use Python `open3d` as an alternative.","Apply a VoxelGrid filter to downsample the cloud.","Apply a PassThrough filter to remove the floor.","Publish the filtered cloud."], out:"Optimized 3D data ready for navigation or manipulation.", time:"3h", del:"RViz2 showing the much sparser, optimized point cloud.", ref:"Raw point clouds freeze networks; voxelization saves the day.", tw:"Day 26/60: Point clouds are heavy! Implemented VoxelGrid filtering today to downsample the 3D data while retaining the environmental structure. Efficiency is key. 📉 #PCL #Robotics #LSPP2026", ev:"Before and after point cloud density images.", ln:[{txt:"PCL VoxelGrid Tutorial",url:"https://pcl.readthedocs.io/projects/tutorials/en/master/voxel_grid.html"}], tag:["Vision"]},
+  {d:27, p:2, t:"Visual Servoing Concepts", obj:"Design a control loop based on visual input.", tsk:["Learn Image-Based Visual Servoing (IBVS) vs Position-Based (PBVS).","Design a simple P-controller (Proportional) in Python.","Logic: If bounding box center is to the left of image center, output angular velocity left."], out:"A control algorithm mapped out for implementation.", time:"2h", del:"A flowchart or pseudocode in your repo explaining the control loop.", ref:"Closing the loop between Vision and Motion is the essence of autonomous robotics.", tw:"Day 27/60: Designing the brain! Mapping out the Proportional control algorithms for Visual Servoing. Soon VisioBot will move based purely on what it sees. 🧠👀 #ControlSystems #LSPP2026", ev:"Photo of control loop flowchart.", ln:[{txt:"Visual Servoing Overview",url:"https://en.wikipedia.org/wiki/Visual_servoing"}], tag:["Vision","Sim"]},
+  {d:28, p:2, t:"Visual Servoing Implementation", obj:"Write the ROS 2 node connecting YOLO to cmd_vel.", tsk:["Create 'visual_tracker_node'.","Subscribe to your custom YOLO 'DetectionArray'.","Calculate error = (image_center_x - bounding_box_center_x).","Publish `geometry_msgs/Twist` to rotate the robot toward the object."], out:"A robot that rotates to face detected objects.", time:"3.5h", del:"Video of a box moving in Gazebo, and the robot spinning to keep it in view.", ref:"Tuning the P-gain is a delicate balance between sluggishness and oscillation.", tw:"Day 28/60: The loop is closed! Wrote the visual servoing node. VisioBot now actively rotates its chassis to keep YOLO-detected objects perfectly centered in its vision. 🔄 #ROS2 #LSPP2026", ev:"Short GIF of robot tracking an object.", ln:[{txt:"geometry_msgs/Twist",url:"https://docs.ros2.org/latest/api/geometry_msgs/msg/Twist.html"}], tag:["Vision","Sim"]},
+  {d:29, p:2, t:"Object Following in Gazebo", obj:"Add forward motion to the visual servoing.", tsk:["Calculate distance error using bounding box size (larger box = closer).","Add linear velocity to the `Twist` message based on size error.","Spawn a moving human/box model in Gazebo.","Tune linear and angular P-gains together."], out:"A robot that follows a specific object like a pet.", time:"3h", del:"Video of VisioBot following a moving target smoothly in simulation.", ref:"Coupling linear and angular velocity often requires limiting maximum speeds for stability.", tw:"Day 29/60: VisioBot is now a loyal follower! Combined angular and linear visual servoing so it tracks and follows a specific object autonomously in Gazebo. 🐕‍🦺 #Robotics #ComputerVision #LSPP2026", ev:"Video of robot following target.", ln:[{txt:"PID Control Basics",url:"https://en.wikipedia.org/wiki/PID_controller"}], tag:["Vision","Sim"]},
+  {d:30, p:2, t:"Phase 2 Capstone", obj:"Clean, document, and push the vision workspace.", tsk:["Organize the YOLO node, ArUco node, and Tracker node.","Write a launch file that brings up Phase 1 (robot) + Phase 2 (vision + servoing).","Update the master README with Phase 2 capabilities.","Push to GitHub."], out:"A well-documented, vision-capable robotics portfolio project.", time:"2h", del:"GitHub commit and updated README with GIFs of object following.", ref:"Phase 2 is the 'cool factor'. Phase 3 brings in the embedded engineering.", tw:"Day 30/60: Halfway mark! Phase 2 is complete. VisioBot can now detect, track, and follow objects using YOLOv8 and visual servoing. Repo is updated. Bring on the Edge AI! 🎉 #LSPP2026 #ROS2", ev:"Link to updated repo and a highlight GIF.", ln:[{txt:"Writing Good READMEs",url:"https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes"}], tag:["Capstone"]},
+
+  // PHASE 3
+  {d:31, p:3, t:"ESP32 & PlatformIO Setup", obj:"Prepare the embedded development environment.", tsk:["Install VS Code and the PlatformIO extension.","Create a new project for the ESP32 Dev Module (Arduino Framework).","Write a basic blink and serial print script.","Flash to the physical ESP32 and monitor output."], out:"Functioning ESP32 development workflow on Ubuntu.", time:"2h", del:"PlatformIO terminal showing 'SUCCESS' build and serial monitor output.", ref:"PlatformIO is vastly superior to the Arduino IDE for complex C++ projects.", tw:"Day 31/60: Kicking off Phase 3: Edge AI & Embedded! Set up PlatformIO for my ESP32. Say goodbye to the standard Arduino IDE, proper C++ project structures from here on out! 🔌 #ESP32 #LSPP2026", ev:"Screenshot of VSCode with PlatformIO.", ln:[{txt:"PlatformIO VSCode Guide",url:"https://docs.platformio.org/en/latest/integration/ide/vscode.html"}], tag:["Hardware"]},
+  {d:32, p:3, t:"Reading ESP32 Sensors", obj:"Interface basic hardware sensors.", tsk:["Wire the MPU6050 (IMU) via I2C to the ESP32.","Install the Adafruit MPU6050 library.","Read accelerometer and gyroscope data.","Optional: Wire the HC-SR04 ultrasonic sensor and read distance."], out:"Raw data acquisition from physical sensors.", time:"3h", del:"Serial monitor showing steady streams of X,Y,Z acceleration data.", ref:"Clean sensor data is the prerequisite for any Edge AI processing.", tw:"Day 32/60: Hooked up the MPU6050 IMU to the ESP32 via I2C. Pulling raw accelerometer and gyroscope data. Real-world physics entering the MCU! ⚡ #EmbeddedSystems #LSPP2026", ev:"Photo of breadboard setup and serial monitor.", ln:[{txt:"Adafruit MPU6050 Guide",url:"https://learn.adafruit.com/mpu6050-6-dof-accelerometer-and-gyro/overview"}], tag:["Hardware"]},
+  {d:33, p:3, t:"micro-ROS Jazzy Agent Setup", obj:"Install the bridge between the MCU and ROS 2.", tsk:["Understand the micro-ROS architecture (Client on ESP32, Agent on PC).","Clone the micro_ros_setup repo for Jazzy on Ubuntu.","Build the micro-ROS agent workspace using colcon.","Run the agent via Docker or native execution."], out:"A running micro-ROS agent listening on serial/UDP.", time:"2.5h", del:"Terminal showing the micro-ROS agent waiting for connections.", ref:"The Agent translates the lightweight MCU protocol (XRCE-DDS) into standard ROS 2.", tw:"Day 33/60: Bridging the gap between deeply embedded systems and high-level ROS 2! Built and ran the micro-ROS Agent for Jazzy on my Ubuntu machine. 🌉 #microROS #ROS2 #LSPP2026", ev:"Terminal screenshot of micro-ROS agent running.", ln:[{txt:"micro-ROS Official Site",url:"https://micro.ros.org/"},{txt:"micro-ROS Agent Setup",url:"https://micro.ros.org/docs/tutorials/core/first_application_linux/"}], tag:["EdgeAI","ROS2"]},
+  {d:34, p:3, t:"micro-ROS ESP32 Publisher", obj:"Publish ROS 2 messages directly from the ESP32.", tsk:["Add the `micro_ros_platformio` library to your ESP32 project.","Configure the transport (Serial via USB).","Write C code to initialize a ROS 2 node on the ESP32.","Publish a simple `std_msgs/Int32` message.","Use `ros2 topic echo` on Ubuntu to verify receipt."], out:"ESP32 communicating natively on the ROS 2 graph.", time:"3.5h", del:"Ubuntu terminal echoing messages generated entirely by the ESP32.", ref:"Seeing an MCU publish standard ROS 2 messages feels like magic.", tw:"Day 34/60: IT WORKS! My ESP32 is now a native ROS 2 node! Publishing messages over USB Serial directly into the ROS 2 Jazzy network using micro-ROS. 🪄 #ESP32 #microROS #LSPP2026", ev:"Split screen: PlatformIO code and ROS 2 topic echo.", ln:[{txt:"micro_ros_platformio GitHub",url:"https://github.com/micro-ROS/micro_ros_platformio"}], tag:["EdgeAI","Hardware"]},
+  {d:35, p:3, t:"micro-ROS Sensor Integration", obj:"Publish real IMU data to ROS 2.", tsk:["Combine Day 32 (IMU) and Day 34 (micro-ROS).","Publish the MPU6050 data using the `sensor_msgs/Imu` message type.","View the live IMU data in RViz2 on Ubuntu."], out:"A physical, ROS-integrated IMU sensor.", time:"3h", del:"RViz2 displaying an IMU plugin matching the physical board's tilt.", ref:"Converting raw analog/I2C data into standardized ROS messages ensures compatibility across the ecosystem.", tw:"Day 35/60: Hooked the physical MPU6050 into micro-ROS. My ESP32 is now publishing standard sensor_msgs/Imu directly to RViz2! Twisting the board rotates the vector on screen. 🛹 #ROS2 #LSPP2026", ev:"Video showing physical board twisting and RViz2 IMU vector reacting.", ln:[{txt:"sensor_msgs/Imu API",url:"https://docs.ros2.org/latest/api/sensor_msgs/msg/Imu.html"}], tag:["Hardware","ROS2"]},
+  {d:36, p:3, t:"Intro to Edge AI (TFLM)", obj:"Understand TensorFlow Lite for Microcontrollers.", tsk:["Study how ML models are compressed for MCUs (under 500KB RAM).","Install the TFLite Micro library in PlatformIO.","Run the classic 'hello_world' sine wave model on the ESP32.","Monitor the output via serial plotter."], out:"A working neural network inference on a microcontroller.", time:"2h", del:"Serial plotter showing a sine wave generated by an ML model, not a math function.", ref:"Running AI on a $5 chip completely changes how you think about compute deployment.", tw:"Day 36/60: First Edge AI deployment! Ran a TensorFlow Lite for Microcontrollers (TFLM) neural net on the ESP32. Generating a sine wave purely through inference. 🧠🔋 #TinyML #LSPP2026", ev:"Screenshot of Serial Plotter.", ln:[{txt:"TFLite for Microcontrollers",url:"https://www.tensorflow.org/lite/microcontrollers"}], tag:["EdgeAI"]},
+  {d:37, p:3, t:"TFLite Model Conversion", obj:"Convert a standard Python model to TFLite format.", tsk:["Write a simple Keras sequential model in a Python notebook.","Train it on dummy data (e.g., classifying XYZ thresholds).","Use `tf.lite.TFLiteConverter` to convert to `.tflite`.","Use `xxd -i` to convert the `.tflite` binary into a C byte array."], out:"A C-header file containing a trained neural network.", time:"2.5h", del:"The `model.h` file containing the C byte array.", ref:"The bridge between powerful Python GPUs and tiny C++ MCUs is the byte array.", tw:"Day 37/60: The bridge from Python to C++. Trained a small Keras model, converted it to TFLite, and exported it as a C byte array using xxd. Ready for the ESP32!  پلی #MachineLearning #LSPP2026", ev:"Snippet of the C byte array header file.", ln:[{txt:"TFLite Converter",url:"https://www.tensorflow.org/lite/convert"}], tag:["EdgeAI"]},
+  {d:38, p:3, t:"Model Quantization", obj:"Shrink the model size to fit on the ESP32.", tsk:["Apply Post-Training Quantization (PTQ) during the TFLite conversion.","Convert weights from Float32 to INT8.","Compare the file size of the original `.tflite` vs the quantized `.tflite`."], out:"A highly optimized, memory-efficient ML model.", time:"2h", del:"Terminal output comparing file sizes (usually a 4x reduction).", ref:"Quantization sacrifices a tiny bit of accuracy for massive gains in speed and memory.", tw:"Day 38/60: Optimizing for the edge! Applied INT8 post-training quantization to shrink my model size by 4x. Crucial when you only have 520KB of SRAM on an ESP32. 🗜️ #TinyML #LSPP2026", ev:"Screenshot showing file size comparison.", ln:[{txt:"Post-training Quantization",url:"https://www.tensorflow.org/lite/performance/post_training_quantization"}], tag:["EdgeAI"]},
+  {d:39, p:3, t:"Edge Impulse Setup", obj:"Use a professional platform for TinyML.", tsk:["Create an account on Edge Impulse.","Install the Edge Impulse CLI on Ubuntu.","Connect the ESP32 to Edge Impulse using the data forwarder.","Collect 5 minutes of IMU data for 3 distinct hand gestures (e.g., Swipe Left, Swipe Right, Idle)."], out:"A labeled dataset of physical IMU gestures.", time:"3h", del:"Edge Impulse dashboard showing your collected data samples.", ref:"Data collection is 80% of the work in real-world ML. Edge Impulse makes it seamless.", tw:"Day 39/60: Switched to Edge Impulse for professional TinyML workflow. Forwarding ESP32 IMU data live to the cloud and building a dataset of physical hand gestures! 🖐️📈 #EdgeImpulse #LSPP2026", ev:"Screenshot of Edge Impulse data acquisition tab.", ln:[{txt:"Edge Impulse Docs",url:"https://docs.edgeimpulse.com/docs/"},{txt:"Data Forwarder",url:"https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-data-forwarder"}], tag:["EdgeAI"]},
+  {d:40, p:3, t:"Edge Impulse Training", obj:"Train a gesture recognition model.", tsk:["Create an Impulse: Time Series data -> Spectral Analysis -> Neural Network.","Tune the DSP block (Spectral Analysis) parameters.","Train the Neural Network.","Review the Confusion Matrix and Model Testing accuracy."], out:"A trained model capable of classifying gestures.", time:"2.5h", del:"Confusion matrix screenshot showing >85% accuracy.", ref:"The DSP block is just as important as the Neural Network block for time-series data.", tw:"Day 40/60: Training the gesture model! Used Spectral Analysis DSP blocks fed into a dense Neural Net on Edge Impulse. Hit 92% accuracy on the test set! 🎯 #TinyML #MachineLearning #LSPP2026", ev:"Screenshot of the confusion matrix.", ln:[{txt:"Continuous Motion Recognition",url:"https://docs.edgeimpulse.com/docs/tutorials/end-to-end-tutorials/continuous-motion-recognition"}], tag:["EdgeAI"]},
+  {d:41, p:3, t:"Deploying to ESP32", obj:"Run the trained gesture model locally.", tsk:["Export the model as an Arduino/C++ Library from Edge Impulse.","Import it into your PlatformIO project.","Write the inference loop: feed live IMU data into `run_classifier()`.","Print the predicted gesture to the serial monitor."], out:"ESP32 running realtime gesture classification disconnected from the cloud.", time:"3h", del:"Video of you performing a gesture and the serial monitor printing 'Swipe Left'.", ref:"Realtime on-device inference is incredibly fast and preserves privacy.", tw:"Day 41/60: Deployed the Edge Impulse C++ library back to the ESP32! It is now classifying hand gestures in real-time, completely offline. Edge AI is mind-blowing. 🧠📉 #ESP32 #EdgeImpulse #LSPP2026", ev:"Video of physical gesture and terminal output.", ln:[{txt:"Deploying to C++",url:"https://docs.edgeimpulse.com/docs/deployment/running-your-impulse-locally"}], tag:["EdgeAI","Hardware"]},
+  {d:42, p:3, t:"ONNX Runtime Basics", obj:"Understand framework-agnostic deployment.", tsk:["Study what ONNX (Open Neural Network Exchange) is.","Export a basic model (like scikit-learn or PyTorch) to ONNX format.","(Conceptual) Review how ONNX Runtime allows deploying to various edge targets compared to TFLite."], out:"Understanding of the broader edge AI ecosystem beyond TFLite.", time:"2h", del:"Short markdown note comparing TFLite and ONNX Runtime.", ref:"TFLM is great for ESP32, but ONNX is crucial for deploying on Jetson Nanos or Intel chips.", tw:"Day 42/60: Taking a breather to study the broader ecosystem. Learning ONNX Runtime for framework-agnostic model deployment. Essential knowledge for diverse hardware architectures! 🌐 #AI #LSPP2026", ev:"Photo of notes comparing TFLite and ONNX.", ln:[{txt:"ONNX Runtime Docs",url:"https://onnxruntime.ai/docs/"}], tag:["EdgeAI"]},
+  {d:43, p:3, t:"MCU AI to ROS 2 Integration", obj:"Publish AI predictions directly to ROS 2.", tsk:["Combine Day 41 (Edge Impulse Inference) and Day 34 (micro-ROS).","When a gesture is classified with >80% confidence, publish a `std_msgs/String` (e.g., 'CMD_LEFT') to a ROS 2 topic `/gesture_commands`.","Verify the messages arriving in Ubuntu using `ros2 topic echo`."], out:"A complete Edge-to-ROS 2 intelligence pipeline.", time:"3.5h", del:"Ubuntu terminal receiving gesture commands directly from the ESP32.", ref:"This is the crucial bridge connecting Phase 3 to Phase 1 & 2.", tw:"Day 43/60: The ultimate integration! The ESP32 is running an ML inference loop and using micro-ROS to publish the resulting gesture commands directly into the ROS 2 Jazzy network. 📡🤖 #ROS2 #TinyML #LSPP2026", ev:"Split screen showing gesture and ros2 topic echo.", ln:[{txt:"micro-ROS Publishers",url:"https://micro.ros.org/docs/tutorials/core/first_application_rtos/"}], tag:["EdgeAI","ROS2"]},
+  {d:44, p:3, t:"MCU Actuator Control (Optional)", obj:"Subscribe to ROS 2 to move physical hardware.", tsk:["Write a micro-ROS subscriber on the ESP32 listening to `/cmd_vel` or a custom topic.","If you have a servo, wire it and use the ROS 2 data to set the angle.","Alternatively, toggle an onboard LED based on ROS 2 input."], out:"Two-way communication: AI commands out, actuator commands in.", time:"3h", del:"Video of the physical ESP32 LED/Servo reacting to a ROS 2 command sent from Ubuntu.", ref:"Robotics is a loop: Sense -> Plan -> Act.", tw:"Day 44/60: Two-way communication established! The ESP32 sends AI gesture predictions TO Ubuntu, and subscribes to ROS 2 topics to control physical hardware (LEDs/Servos) back on the MCU. 🔄 #Hardware #LSPP2026", ev:"Video of LED/Servo reacting to terminal command.", ln:[{txt:"micro-ROS Subscribers",url:"https://github.com/micro-ROS/micro_ros_platformio/tree/main/examples/micro-ros_subscriber"}], tag:["Hardware","ROS2"]},
+  {d:45, p:3, t:"Phase 3 Capstone", obj:"Clean, document, and push the Edge AI workspace.", tsk:["Organize the PlatformIO project and micro-ROS setup instructions.","Write a README detailing how to flash the ESP32 and run the Agent.","Push the `03_edge_ai_esp32` directory to GitHub."], out:"A portfolio-ready Embedded/Edge AI project.", time:"2h", del:"GitHub commit containing the complete ESP32 Edge AI project.", ref:"You now possess a rare trio of skills: High-level ROS 2, Computer Vision, and deeply embedded Edge AI.", tw:"Day 45/60: Phase 3 is wrapped! Embedded C++, micro-ROS, and TinyML all running smoothly on an ESP32. The hardware controller for VisioBot is ready. Repo updated! 🚀 #EmbeddedSystems #LSPP2026", ev:"Link to GitHub Repo.", ln:[{txt:"Writing Good READMEs",url:"https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes"}], tag:["Capstone"]},
+
+  // PHASE 4
+  {d:46, p:4, t:"VisioBot Architecture Design", obj:"Plan the integration of all three phases.", tsk:["Draw a system architecture diagram (Lucidchart/draw.io).","Define the node graph: ESP32 Node -> /gesture_cmd -> Brain Node -> Nav2 / YOLO.","Create the final workspace `04_visiobot_final`."], out:"A clear blueprint for the final system.", time:"2h", del:"A professional architecture diagram exported as PNG.", ref:"Measure twice, cut once. A solid architecture diagram prevents spaghetti ROS graphs.", tw:"Day 46/60: Welcome to Phase 4: Capstone! Kicking it off by mapping out the entire VisioBot architecture. Connecting Gazebo, YOLO, Nav2, and the ESP32 controller. 🗺️ #SystemDesign #LSPP2026", ev:"Image of the architecture diagram.", ln:[{txt:"Draw.io for Architecture",url:"https://app.diagrams.net/"}], tag:["Capstone"]},
+  {d:47, p:4, t:"VisioBot Sim Chassis Update", obj:"Finalize the Gazebo simulation environment.", tsk:["Merge the best parts of your URDF from Phase 1.","Ensure the camera and LiDAR are properly mounted and bridged in Gazebo Harmonic.","Create an interesting final Gazebo world (e.g., a maze or a room with distinct objects)."], out:"The definitive simulation playground for the capstone.", time:"3h", del:"Screenshot of the final Gazebo Harmonic world and robot.", ref:"A good simulation environment makes testing the AI much more robust.", tw:"Day 47/60: Finalizing the digital proving grounds. Built the ultimate Gazebo Harmonic world for VisioBot to navigate and explore using its LiDAR and camera. 🏭 #Gazebo #ROS2 #LSPP2026", ev:"Screenshot of the Gazebo world.", ln:[{txt:"Building Gazebo Worlds",url:"https://gazebosim.org/docs/harmonic/building_robot/"}], tag:["Sim"]},
+  {d:48, p:4, t:"Integrating the Vision Node", obj:"Merge the YOLOv8 pipeline into the final workspace.", tsk:["Port the YOLOv8 ROS 2 node into the final workspace.","Ensure it correctly subscribes to the final Gazebo camera topic.","Test that bounding boxes are published correctly in the new environment."], out:"Vision system successfully integrated.", time:"2.5h", del:"rqt_image_view showing YOLO working in the final world.", ref:"Integration often reveals hardcoded topic names; parameterizing them is key.", tw:"Day 48/60: Porting the YOLOv8 pipeline into the final VisioBot integration workspace. The robot's visual cortex is officially online in the new environment! 👀 #ComputerVision #LSPP2026", ev:"Screenshot of YOLO working in the new world.", ln:[{txt:"ROS 2 Remapping",url:"https://docs.ros.org/en/jazzy/How-To-Guides/Node-arguments.html#name-remapping"}], tag:["Vision","Capstone"]},
+  {d:49, p:4, t:"Integrating the Nav2 Stack", obj:"Merge autonomous navigation into the final workspace.", tsk:["Port the SLAM map and Nav2 launch configurations.","Ensure Nav2 correctly talks to the final robot's `cmd_vel` and `odom`.","Test a 2D Nav Goal in RViz2 to ensure the robot can drive itself."], out:"Navigation system successfully integrated.", time:"3h", del:"Robot successfully navigating to a point in the final world.", ref:"Nav2 integration is notoriously tricky with TF frames; rely on `tf2_echo` if stuck.", tw:"Day 49/60: Nav2 integration complete! VisioBot can now autonomously path-plan and navigate around its final Gazebo world. The autonomous driving foundation is set. 🚗💨 #Nav2 #Robotics #LSPP2026", ev:"GIF of robot navigating in RViz2.", ln:[{txt:"Nav2 Integration Guide",url:"https://docs.nav2.org/setup_guides/index.html"}], tag:["Sim","Capstone"]},
+  {d:50, p:4, t:"Integrating the Edge Node", obj:"Connect the physical ESP32 to control the simulation.", tsk:["Write a 'Master Control' ROS 2 Python node in Ubuntu.","This node subscribes to `/gesture_cmd` from the ESP32.","Logic: If 'Swipe Left' -> Send Nav2 goal to Waypoint A. If 'Swipe Right' -> Rotate to find object with YOLO."], out:"Physical Edge AI controlling virtual simulation.", time:"3.5h", del:"Terminal showing the Master node translating ESP32 gestures into high-level robot actions.", ref:"This is the magical moment where the physical hardware controls the digital twin.", tw:"Day 50/60: The holy trinity is connected! My physical ESP32 hand gestures are now dictating high-level autonomous behaviors to the simulated VisioBot via ROS 2. 🪄🤖 #EdgeAI #LSPP2026", ev:"Code snippet of the Master Control logic.", ln:[{txt:"Action Client (Python)",url:"https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Writing-an-Action-Server-Client/Py.html"}], tag:["EdgeAI","Capstone"]},
+  {d:51, p:4, t:"System-wide Testing", obj:"Run the entire system end-to-end.", tsk:["Launch the full stack: Gazebo, Nav2, YOLO, micro-ROS Agent.","Perform a full run: Gesture triggers navigation, robot navigates, YOLO detects object.","Identify latency issues or node crashes."], out:"A list of bugs and performance bottlenecks.", time:"3h", del:"A bug list created in your repo's Issues tab.", ref:"First full integration test never works perfectly. Logging bugs systematically is real engineering.", tw:"Day 51/60: First full system-wide test! Fired up Gazebo, Nav2, YOLO, and the micro-ROS agent simultaneously. Found a few bottlenecks, logging them as GitHub issues to squash tomorrow! 🐛🔨 #Engineering #LSPP2026", ev:"Screenshot of GitHub issues.", ln:[{txt:"GitHub Issues",url:"https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues"}], tag:["Capstone"]},
+  {d:52, p:4, t:"Debugging with rqt", obj:"Resolve issues found during system testing.", tsk:["Use `rqt_graph` to ensure all topics are connected properly.","Use `rqt_tf_tree` to verify no broken coordinate transforms.","Use `ros2 topic hz` to check if camera feeds are lagging."], out:"A stable, bug-free ROS 2 graph.", time:"3h", del:"A beautifully organized, fully connected rqt_graph screenshot.", ref:"Visual debugging tools like rqt are what make ROS powerful.", tw:"Day 52/60: Squashing bugs with rqt tools! Analyzing topic frequencies and TF trees to ensure smooth communication across the entire VisioBot network. 🕸️🔧 #ROS2 #Debugging #LSPP2026", ev:"Screenshot of a clean rqt_graph.", ln:[{txt:"RQT Tools",url:"https://docs.ros.org/en/jazzy/Concepts/Basic/About-Rqt.html"}], tag:["ROS2"]},
+  {d:53, p:4, t:"Optimizing QoS Profiles", obj:"Tune Quality of Service for high-bandwidth topics.", tsk:["Understand QoS in ROS 2 (Reliability, Durability, History).","Change the camera publisher/subscriber QoS to 'Best Effort' to reduce latency.","Test system latency before and after."], out:"A highly responsive video and detection pipeline.", time:"2h", del:"Code snippets showing QoS profile modifications.", ref:"For sensor data (like video), it's better to drop an old frame than wait for it (Best Effort).", tw:"Day 53/60: Deep diving into ROS 2 Quality of Service (QoS). Switched video streams to 'Best Effort' reliability to massively drop latency. Smooth streaming achieved! 🌊 #ROS2 #Optimization #LSPP2026", ev:"Code snippet of QoS configuration.", ln:[{txt:"ROS 2 QoS Policies",url:"https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Quality-of-Service-Settings.html"}], tag:["ROS2"]},
+  {d:54, p:4, t:"Building a Master Launch System", obj:"Create a one-click startup for the entire project.", tsk:["Write a master `visiobot_bringup.launch.py`.","Use `IncludeLaunchDescription` to nest the Gazebo, Nav2, Vision, and Control launch files.","Add terminal color coding or logging configs to keep output readable."], out:"A single command to start the entire VisioBot system.", time:"2.5h", del:"A terminal showing `ros2 launch visiobot_bringup master.launch.py` succeeding.", ref:"Ease of use is critical for a portfolio piece. Nobody wants to run 8 terminal commands to see your project.", tw:"Day 54/60: The One-Click Launch! Built a master ROS 2 launch file that orchestrates Gazebo, Nav2, YOLO, and the Edge AI listeners all at once. Pure satisfaction. 🚀🎯 #LSPP2026", ev:"Snippet of nested launch file.", ln:[{txt:"Using IncludeLaunchDescription",url:"https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Launch/Using-ROS2-Launch-For-Large-Projects.html"}], tag:["ROS2","Capstone"]},
+  {d:55, p:4, t:"Code Refactoring & Linting", obj:"Ensure code meets professional standards.", tsk:["Run `flake8` or `pylint` on all Python nodes.","Ensure C++ code follows standard conventions.","Remove unused imports, dead code, and excessive print statements.","Add clear docstrings to classes and functions."], out:"Clean, readable, professional code.", time:"2h", del:"A clean `git diff` showing formatting improvements.", ref:"Sloppy code kills a good project's credibility. Clean it up.", tw:"Day 55/60: Cleaning house! Spending the day refactoring code, removing dead endpoints, and adding proper Python docstrings. Making the codebase interview-ready. 🧹✨ #CleanCode #LSPP2026", ev:"Screenshot of neat, docstring-commented code.", ln:[{txt:"PEP 8 Style Guide",url:"https://peps.python.org/pep-0008/"}], tag:["Capstone"]},
+  {d:56, p:4, t:"The Technical README", obj:"Write outstanding documentation.", tsk:["Draft the Master README.md.","Include: High-level overview, Architecture Diagram (from Day 46), Tech Stack.","Write explicit step-by-step setup and build instructions for Ubuntu 24.04 / Jazzy.","Document known issues or future improvements."], out:"A portfolio-grade README file.", time:"3h", del:"The completed README.md published on GitHub.", ref:"Your README is your project's resume. Spend serious time on it.", tw:"Day 56/60: Documentation day! A project doesn't exist if people can't run it. Writing a comprehensive, portfolio-grade README for the VisioBot repository. 📝 #Documentation #OpenSource #LSPP2026", ev:"Screenshot of the styled README.md on GitHub.", ln:[{txt:"Awesome README Templates",url:"https://github.com/matiassingers/awesome-readme"}], tag:["Capstone"]},
+  {d:57, p:4, t:"Demo Video Recording", obj:"Create a compelling visual demonstration.", tsk:["Use OBS Studio to record your screen (Gazebo + RViz2 + Terminals).","Record yourself making the physical ESP32 hand gestures via webcam in the corner.","Edit a clean 1-2 minute video showing the end-to-end functionality.","Upload to YouTube or directly to LinkedIn/GitHub."], out:"A professional demonstration video.", time:"4h", del:"The final MP4 video file/link.", ref:"Recruiters rarely run code; they almost always watch the demo video.", tw:"Day 57/60: Lights, camera, action! 🎬 Recorded and edited the final demonstration video of VisioBot. Seeing physical gestures drive autonomous simulation is incredible. Video coming soon! #Robotics #LSPP2026", ev:"Screenshot of video editing timeline or OBS.", ln:[{txt:"OBS Studio",url:"https://obsproject.com/"}], tag:["Capstone"]},
+  {d:58, p:4, t:"Technical Blog Post", obj:"Share your journey and technical insights.", tsk:["Write an article on Medium, Dev.to, or LinkedIn.","Topic: 'Bridging Edge AI and ROS 2 Jazzy: How I Built VisioBot'.","Focus on the *hardest* problem you solved (e.g., getting micro-ROS working or TF2 math).","Link back to the GitHub repo and video."], out:"A published technical article.", time:"3h", del:"Link to the published article.", ref:"Writing technically clarifies your own understanding and establishes authority.", tw:"Day 58/60: Just published an article on how I bridged Edge AI with ROS 2 Jazzy to build VisioBot! Read about my architecture and the hardest bugs I squashed. ✍️🔗 [Link] #TechWriting #LSPP2026", ev:"Link to the blog post.", ln:[{txt:"Dev.to",url:"https://dev.to/"}], tag:["Capstone"]},
+  {d:59, p:4, t:"Portfolio & Resume Update", obj:"Translate the project into career capital.", tsk:["Update your resume with a new 'Projects' entry for VisioBot.","Highlight key tech: Ubuntu, ROS 2 Jazzy, Gazebo, YOLOv8, TFLite, ESP32, C++, Python.","Update your LinkedIn profile with the video and project details."], out:"Career materials reflecting your new high-value skills.", time:"2h", del:"Updated PDF Resume and LinkedIn profile.", ref:"You've done the hard work; now make sure the world knows how to hire you for it.", tw:"Day 59/60: Translating 60 days of hard work into career capital. Updated my resume and LinkedIn to feature VisioBot, ROS 2 Jazzy, and Edge AI. Ready for the next opportunity! 💼 #CareerGrowth #LSPP2026", ev:"Screenshot of updated Resume section.", ln:[{txt:"How to Write a Tech Resume",url:"https://www.freecodecamp.org/news/writing-a-killer-software-engineering-resume-b11c91ef699d/"}], tag:["Capstone"]},
+  {d:60, p:4, t:"Final Polish & Delivery", obj:"Cross the finish line of the 60-Day Challenge.", tsk:["Do a final review of the GitHub repository.","Tag @lftechnology and submit your final deliverables.","Write a reflection thread on X/Twitter about your biggest learnings and thanks to the community.","Celebrate!"], out:"Challenge completed successfully.", time:"1.5h", del:"The final mega-thread on Twitter/LinkedIn.", ref:"Consistency over 60 days is a massive achievement. Be proud.", tw:"Day 60/60: I DID IT! 🎉 Completed the @lftechnology 60-Day Challenge! From basic ROS 2 nodes to a fully autonomous, Edge-AI controlled robot in Gazebo. Huge thanks to the community. Check out VisioBot below! 👇🧵 #LSPP2026 #Robotics #Completed", ev:"Link to the final demo video and GitHub repo.", ln:[{txt:"Leapfrog Technology",url:"https://www.lftechnology.com/"}], tag:["Capstone"]}
+];
+
+// Generate HTML for a day card
+function generateDayHTML(data) {
+    const tagsHTML = data.tag.map(t => {
+        let tagClass = '';
+        if(t.toLowerCase().includes('ros2')) tagClass = 'tag-ros2';
+        else if(t.toLowerCase().includes('sim')) tagClass = 'tag-sim';
+        else if(t.toLowerCase().includes('vision')) tagClass = 'tag-vision';
+        else if(t.toLowerCase().includes('edge')) tagClass = 'tag-edgeai';
+        else if(t.toLowerCase().includes('hard') || t.toLowerCase().includes('hw')) tagClass = 'tag-hardware';
+        else if(t.toLowerCase().includes('cap')) tagClass = 'tag-capstone';
+        else tagClass = 'tag-ros2'; // fallback
+        return `<span class="tag ${tagClass}">${t}</span>`;
+    }).join('');
+
+    const tasksHTML = data.tsk.map(task => `<li>${task}</li>`).join('');
+    
+    const linksHTML = data.ln.map(l => `<a href="${l.url}" target="_blank" class="link-item">🔗 ${l.txt}</a>`).join('');
+
+    return `
+    <div class="day-card" data-phase="p${data.p}" data-search="${data.t.toLowerCase()} ${data.obj.toLowerCase()} ${data.tag.join(' ').toLowerCase()}">
+        <div class="day-header" onclick="toggleDay(this)">
+            <div class="day-info">
+                <div class="day-num">Day ${data.d}</div>
+                <div class="day-title">${data.t}</div>
+                <div class="day-tags">${tagsHTML}</div>
+            </div>
+            <div class="icon-chevron">▼</div>
+        </div>
+        <div class="day-body">
+            <div class="grid-2">
+                <div>
+                    <div class="sec-title">Objective</div>
+                    <div class="sec-content">${data.obj}</div>
+                    
+                    <div class="sec-title">Tasks</div>
+                    <div class="sec-content">
+                        <ul>${tasksHTML}</ul>
+                    </div>
+
+                    <div class="sec-title">Reflection</div>
+                    <div class="sec-content" style="font-style:italic;">"${data.ref}"</div>
+                </div>
+                <div>
+                    <div class="sec-title">Outcome & Deliverable</div>
+                    <div class="sec-content">
+                        <strong>Outcome:</strong> ${data.out}<br>
+                        <strong>Time:</strong> ${data.time}<br>
+                        <strong>Deliverable:</strong> ${data.del}
+                    </div>
+
+                    <div class="sec-title">Resources</div>
+                    <div class="sec-content link-list">
+                        ${linksHTML}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sec-title" style="margin-top:0.5rem;">Daily X/Twitter Post</div>
+            <div class="tweet-box">
+                <button class="copy-btn" onclick="copyTweet(this, 'tweet-${data.d}')">Copy</button>
+                <div class="tweet-text" id="tweet-${data.d}">${data.tw}</div>
+                <div style="font-size: 0.8rem; color: var(--text-tertiary); margin-top:0.5rem;">
+                    <strong>📸 Recommended Media:</strong> ${data.ev}
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+// Render all days on load
+const container = document.getElementById('daysContainer');
+container.innerHTML = roadmapData.map(d => generateDayHTML(d)).join('');
+
+// Toggle Day Card
+function toggleDay(element) {
+    const card = element.parentElement;
+    card.classList.toggle('open');
+}
+
+// Copy Tweet Function
+function copyTweet(btnElement, textId) {
+    const text = document.getElementById(textId).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = btnElement.innerText;
+        btnElement.innerText = 'Copied!';
+        setTimeout(() => { btnElement.innerText = originalText; }, 2000);
+    });
+}
+
+// Navigation Logic
+const navBtns = document.querySelectorAll('.nav-btn');
+const viewOverview = document.getElementById('view-overview');
+const viewRoadmap = document.getElementById('view-roadmap');
+
+navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        navBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const target = btn.getAttribute('data-target');
+        
+        if (target === 'overview') {
+            viewOverview.classList.remove('hidden');
+            viewRoadmap.classList.add('hidden');
+        } else {
+            viewOverview.classList.add('hidden');
+            viewRoadmap.classList.remove('hidden');
+            
+            // Filter logic
+            const cards = document.querySelectorAll('.day-card');
+            cards.forEach(card => {
+                if (target === 'all') {
+                    card.classList.remove('hidden');
+                } else {
+                    if (card.getAttribute('data-phase') === target) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                }
+            });
+        }
+    });
+});
+
+// Search Logic
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('.day-card');
+    
+    // Switch to 'All Days' view for search if currently filtered
+    const activeNav = document.querySelector('.nav-btn.active').getAttribute('data-target');
+    if(activeNav !== 'all' && activeNav !== 'overview' && term.length > 0) {
+        document.querySelector('[data-target="all"]').click();
+    }
+    
+    cards.forEach(card => {
+        const searchStr = card.getAttribute('data-search');
+        if (searchStr.includes(term)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+</script>
+</body>
+</html>

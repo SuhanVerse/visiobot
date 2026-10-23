@@ -1,0 +1,623 @@
+
+<style>
+*{box-sizing:border-box}
+.rm{padding:1rem 0;font-family:var(--font-sans)}
+.top-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
+.tnav{font-size:12px;padding:4px 12px;border-radius:20px;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;white-space:nowrap}
+.tnav.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-secondary)}
+.phase-header{padding:8px 0 4px;margin-bottom:8px}
+.phase-label{font-size:11px;font-weight:500;letter-spacing:.06em;color:var(--color-text-tertiary);text-transform:uppercase;margin:0 0 2px}
+.phase-title{font-size:17px;font-weight:500;color:var(--color-text-primary);margin:0}
+.week-section{margin-bottom:1rem}
+.week-label{font-size:11px;font-weight:500;letter-spacing:.05em;color:var(--color-text-tertiary);text-transform:uppercase;margin:0 0 8px;padding:8px 0 0}
+.day-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:8px;overflow:hidden}
+.day-header{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer}
+.day-header:hover{background:var(--color-background-secondary)}
+.day-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.day-info{flex:1;min-width:0}
+.day-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-sub{font-size:12px;color:var(--color-text-secondary);margin:0}
+.day-tags{display:flex;gap:4px;flex-shrink:0}
+.tag{font-size:11px;padding:2px 7px;border-radius:10px;border:0.5px solid}
+.chev{font-size:14px;color:var(--color-text-tertiary);transition:transform .2s;flex-shrink:0}
+.chev.open{transform:rotate(180deg)}
+.day-body{display:none;padding:0 14px 14px;border-top:0.5px solid var(--color-border-tertiary)}
+.day-body.open{display:block}
+.sec-lbl{font-size:11px;font-weight:500;letter-spacing:.05em;color:var(--color-text-tertiary);text-transform:uppercase;margin:12px 0 6px}
+.task-list{list-style:none;padding:0;margin:0}
+.task-list li{font-size:13px;color:var(--color-text-primary);padding:3px 0;display:flex;gap:8px;line-height:1.5;align-items:flex-start}
+.dot{width:5px;height:5px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.res-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;margin:2px 2px 0 0;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.project-block{border-radius:var(--border-radius-md);padding:8px 12px;margin-top:8px;border:0.5px solid}
+.tip-block{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 12px;margin-top:8px;font-size:13px;color:var(--color-text-secondary);display:flex;gap:8px;align-items:flex-start}
+.progress-strip{height:2px;border-radius:1px;margin-bottom:1.25rem;display:flex;gap:2px}
+.progress-seg{flex:1;border-radius:1px;opacity:.3}
+.progress-seg.done{opacity:1}
+.view{display:none}
+.view.active{display:block}
+.search-bar{width:100%;padding:8px 12px;font-size:13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-primary);margin-bottom:1rem}
+.search-bar:focus{outline:none;border-color:var(--color-border-secondary)}
+</style>
+
+<div class="rm">
+<h2 class="sr-only">60-day AI Engineering daily roadmap — 8 weeks of structured learning</h2>
+
+<div class="top-nav" id="topNav"></div>
+<div class="progress-strip" id="progressStrip"></div>
+
+<div id="view-all" class="view active"></div>
+<div id="view-search" class="view">
+  <input class="search-bar" id="searchInput" placeholder="Search days, topics, tools..." oninput="doSearch()">
+  <div id="searchResults"></div>
+</div>
+</div>
+
+<script>
+const C={
+  purple:{f:"#EEEDFE",s:"#534AB7",t:"#3C3489",d:"#7F77DD"},
+  teal:{f:"#E1F5EE",s:"#0F6E56",t:"#085041",d:"#1D9E75"},
+  amber:{f:"#FAEEDA",s:"#854F0B",t:"#633806",d:"#BA7517"},
+  coral:{f:"#FAECE7",s:"#993C1D",t:"#712B13",d:"#D85A30"},
+  blue:{f:"#E6F1FB",s:"#185FA5",t:"#0C447C",d:"#378ADD"},
+  green:{f:"#EAF3DE",s:"#3B6D11",t:"#27500A",d:"#639922"}
+};
+
+const PHASES=[
+  {id:"p1",label:"Phase 1",title:"Foundation — how LLMs work & prompt engineering",color:"purple",weeks:[1,2]},
+  {id:"p2",label:"Phase 2",title:"Building — APIs, RAG, and agents",color:"teal",weeks:[3,4,5]},
+  {id:"p3",label:"Phase 3",title:"Depth — evals, open source, reliability",color:"amber",weeks:[6,7]},
+  {id:"p4",label:"Phase 4",title:"Ship — build and deploy your portfolio project",color:"coral",weeks:[8]}
+];
+
+const DAYS=[
+  {w:1,d:1,title:"Environment setup + first LLM call",sub:"Get everything running on your machine",color:"purple",
+   type:"setup",
+   tasks:["Install Python 3.11+ if not already installed — check with python --version","Install VS Code and the Python extension","Create a project folder: ai-engineering-journey","Set up a virtual environment: python -m venv venv and activate it","Install core packages: pip install anthropic openai python-dotenv","Create a .env file and add your Anthropic API key (get it from console.anthropic.com)","Write your very first API call — send 'Hello' to Claude and print the response","Understand the response object structure — content, role, model, usage fields","Read what tokens are in the usage field — input_tokens and output_tokens","Commit your setup to GitHub — create a repo called ai-engineering-journey"],
+   resources:["console.anthropic.com — get API key","Anthropic Python SDK quickstart","python-dotenv docs","VS Code Python setup guide"],
+   project:null,
+   tip:"Never put your API key directly in code. Always use .env + python-dotenv. This is a professional habit worth building from day 1."
+  },
+  {w:1,d:2,title:"How LLMs actually work — intuition",sub:"Concepts only, no math required",color:"purple",
+   type:"learn",
+   tasks:["Watch Andrej Karpathy — Intro to Large Language Models on YouTube (1 hour, full watch)","Understand: LLMs are next-token predictors — they don't 'think', they predict","Understand what tokenization is — words are split into subword tokens","Open the OpenAI tokenizer playground and experiment with different text","Understand context window — everything the model 'sees' in one request","Understand the difference between a base model and an instruction-tuned model","Read about why hallucination happens — model predicts plausible, not factual tokens","Understand temperature: 0 = deterministic, 1+ = creative/random","Make 5 API calls varying temperature from 0 to 1 on the same prompt, observe differences","Write a short note to yourself: 3 things that surprised you about how LLMs work"],
+   resources:["Karpathy — Intro to LLMs (YouTube)","OpenAI tokenizer playground — platform.openai.com/tokenizer","Anthropic — core concepts docs"],
+   project:null,
+   tip:"The tokenizer experiment is not optional. Seeing 'ChatGPT' become 3 tokens and ' cat' differ from 'cat' builds intuition nothing else can."
+  },
+  {w:1,d:3,title:"The message structure + system prompts",sub:"The three roles and how conversations work",color:"purple",
+   type:"learn",
+   tasks:["Understand the three roles: system, user, assistant — and what each one does","System prompt = instructions to the model before the user speaks","User = what the human sends","Assistant = what the model replies — you can also pre-fill this","Write 5 different system prompts for the same chatbot (a tutor) and compare responses","Understand that system prompts are not magic — models can be instructed to ignore them","Learn the messages array format — it's just a list of role/content dictionaries","Build a simple multi-turn conversation by appending to the messages list manually","Understand why the full history must be sent every request — no server-side memory by default","Experiment: what happens if you give conflicting instructions in system vs user?"],
+   resources:["Anthropic messages API reference","Claude system prompt docs","OpenAI chat completions guide"],
+   project:null,
+   tip:"System prompts are your main lever as an AI engineer. Time spent mastering them pays off in every single project you build."
+  },
+  {w:1,d:4,title:"Prompt engineering — zero-shot and few-shot",sub:"The foundations of getting reliable outputs",color:"purple",
+   type:"learn",
+   tasks:["Understand zero-shot: asking the model directly with no examples","Understand few-shot: providing input-output examples before your actual question","Write a zero-shot prompt to classify customer feedback as positive/negative/neutral","Write a few-shot version of the same classifier with 3 examples — compare quality","Understand why few-shot works: examples constrain the output space","Practice: write a few-shot prompt for extracting structured data from unstructured text","Learn about output formatting in prompts — 'respond only in JSON with these fields'","Understand token cost implications of few-shot vs zero-shot","Experiment with how many examples are optimal — try 1, 3, 5 examples","Write your observations: when does few-shot help vs not help?"],
+   resources:["learnprompting.org — few-shot section","Anthropic prompt engineering guide","OpenAI prompt engineering guide"],
+   project:null,
+   tip:"Few-shot examples are the single fastest way to improve output quality on specific tasks. Learn to use them well."
+  },
+  {w:1,d:5,title:"Chain of thought + structured outputs",sub:"Making models reason and respond consistently",color:"purple",
+   type:"learn",
+   tasks:["Understand chain of thought: asking the model to reason step by step before answering","Add 'think step by step' to a math or logic problem — compare to without it","Understand why CoT works: intermediate reasoning reduces errors","Learn zero-shot CoT vs few-shot CoT — 'let's think step by step' is zero-shot CoT","Practice getting JSON output: 'respond only with valid JSON, no other text'","Understand why JSON output is critical for AI applications — you need to parse responses","Learn about Pydantic for output validation — install it: pip install pydantic","Write a prompt that extracts name, email, date from a paragraph — returns clean JSON","Handle the case where the model returns invalid JSON — try/except and retry logic","Build a small utility function: call_llm(prompt) that always returns parsed JSON"],
+   resources:["Chain of thought paper — arxiv summary","Anthropic structured output docs","Pydantic documentation"],
+   project:null,
+   tip:"Always write a wrapper function for your API calls. Never write raw API calls scattered through your code — you'll thank yourself when you need to change models."
+  },
+  {w:1,d:6,title:"Advanced prompting techniques",sub:"Role prompting, XML tags, negative instructions",color:"purple",
+   type:"learn",
+   tasks:["Role prompting: 'You are an expert Python developer with 10 years experience...' — test it","Understand why role prompts work and when they don't","Learn Anthropic's recommended XML tag format for structured prompts","Practice: wrap your instructions in <instructions>, context in <context>, input in <input>","Negative prompting: 'Do not use bullet points. Do not mention competitors. Do not...'","Practice: write a prompt with clear negative instructions and test edge cases","Learn about prompt injection: when user input overwrites your system prompt","Build a simple prompt injection attack yourself so you understand it experientially","Learn defense: separate user content from instructions clearly using XML tags","Write a reusable prompt template function that uses XML tags properly"],
+   resources:["Anthropic prompt engineering — XML tags section","OWASP LLM top 10 — prompt injection","learnprompting.org — advanced section"],
+   project:null,
+   tip:"Prompt injection is not theoretical. If you're building anything where users provide input that goes into your prompt, you must understand this."
+  },
+  {w:1,d:7,title:"Week 1 project + review",sub:"Build a prompt comparison tool, review everything",color:"purple",
+   type:"project",
+   tasks:["Review everything from days 1-6 — reread your notes","Build a simple prompt testing script: takes a task, runs 5 prompt variations, saves results to a file","The script should log: prompt text, response, token count, response time for each variation","Pick one real task: customer feedback classifier, or email subject line generator, or FAQ answerer","Write 5 meaningfully different prompts for your chosen task (not just paraphrases)","Run all 5, compare outputs, identify the best one and write why it's best","Push all your code to GitHub with a clear README explaining what you built and learned","Reflect: write 5 things you now understand about LLMs that you didn't a week ago","Set up accounts you'll need next week: get free API keys from OpenAI too","Prepare for week 2: read the learnprompting.org table of contents"],
+   resources:["Your own notes from week 1","GitHub README guide","learnprompting.org"],
+   project:{title:"Prompt comparison tool",desc:"A Python script that tests multiple prompts on the same task, logs results with token counts and timing, and saves a comparison report to a text file.",color:"purple"},
+   tip:"The best way to end a week is to build something that uses everything you learned. Even a script is a real project."
+  },
+  {w:2,d:8,title:"Prompt evaluation and testing methodology",sub:"How to know if your prompt is actually good",color:"purple",
+   type:"learn",
+   tasks:["Understand that 'it feels right' is not evaluation — you need systematic testing","Build a test set: 15-20 input examples with expected outputs for a specific task","Understand precision vs recall in the context of LLM outputs","Learn to score responses: write a simple 1-5 rubric for your task","Use another LLM call to score responses — this is LLM-as-judge pattern","Understand consistency: run the same prompt 5 times, measure variance in outputs","Learn about regression testing: saving a baseline and comparing future changes against it","Write a basic eval harness: run all test inputs, score each, print a summary score","Understand why evals matter before you build: build the test set first, then the prompt","Practice: improve your week 1 prompt classifier until it scores 90%+ on your test set"],
+   resources:["DeepLearning.AI — evaluating LLM outputs short course (free)","RAGAS paper — summary","Braintrust.dev docs — free eval platform"],
+   project:null,
+   tip:"Building your eval set before building your system is the most professional thing you can do. It forces you to define what 'good' actually means."
+  },
+  {w:2,d:9,title:"Tokens, costs, and context management",sub:"Real engineering — money and limits matter",color:"purple",
+   type:"learn",
+   tasks:["Understand token pricing: input tokens vs output tokens have different costs","Calculate the cost of your week 1 experiments — use the Anthropic pricing page","Learn to count tokens before sending: use the anthropic tokenizer or tiktoken library","Understand context window limits: Claude Sonnet has 200k tokens, what does that mean practically","Learn context management strategies: summarization, truncation, sliding window","Build a context manager: a function that keeps conversation history under a token limit","Understand that longer context = slower response + higher cost — the tradeoff","Learn about caching: Anthropic prompt caching reduces costs for repeated system prompts","Practice: build a conversation that gracefully handles context overflow","Understand max_tokens parameter — output limit, not context limit — common confusion"],
+   resources:["Anthropic pricing page","Anthropic token counting docs","tiktoken library — OpenAI"],
+   project:null,
+   tip:"Token cost awareness separates hobbyists from engineers. In production, unchecked token usage can result in huge bills. Know your costs."
+  },
+  {w:2,d:10,title:"Building a real chatbot with memory",sub:"Your first complete Python application",color:"purple",
+   type:"build",
+   tasks:["Design a chatbot with a clear purpose — pick something you'd actually use","Implement proper conversation history management in a Python class","Add a system prompt that defines personality, scope, and constraints clearly","Implement graceful error handling: API errors, rate limits, network failures","Add a simple retry mechanism with exponential backoff for rate limit errors","Implement token counting to warn when approaching context limit","Add a command system: /clear resets history, /save saves conversation to file, /exit quits","Make the output stream character by character using the streaming API","Write a proper README for this project with installation instructions","Test it yourself for 20 minutes of real conversation — what breaks?"],
+   resources:["Anthropic streaming docs","Python exponential backoff pattern","Click library for CLI apps — optional"],
+   project:{title:"Topic chatbot v1",desc:"A CLI chatbot on any topic you choose. Clean class structure, streaming output, conversation memory, token tracking, error handling, and a /save command.",color:"purple"},
+   tip:"Using your own product for 20 minutes reveals more bugs than any test suite. Always dog-food what you build."
+  },
+  {w:2,d:11,title:"Prompt patterns for real applications",sub:"Classification, extraction, summarization, generation",color:"purple",
+   type:"learn",
+   tasks:["Learn the 4 core LLM task types: classify, extract, summarize, generate","Classification pattern: build a multi-label classifier that outputs JSON with confidence scores","Extraction pattern: pull structured fields from messy unstructured text reliably","Summarization pattern: different summary types — bullet, paragraph, ELI5, executive — same content","Generation pattern: constrained creative generation with specific format and tone requirements","Chain patterns: output of one LLM call becomes input of another — pipeline thinking","Router pattern: use a fast cheap model to decide which prompt to use, then use the right one","Retry with feedback: if output fails validation, send the error back and ask for correction","Learn when NOT to use an LLM — simple string matching, regex, lookups are faster and cheaper","Build a mini library of prompt templates for these 4 patterns — you'll reuse them"],
+   resources:["Anthropic cookbook — GitHub","OpenAI cookbook — GitHub","learnprompting.org — patterns"],
+   project:null,
+   tip:"The Anthropic and OpenAI cookbooks on GitHub are goldmines. Read through them during this week — they contain real production patterns."
+  },
+  {w:2,d:12,title:"APIs, JSON, and environment management",sub:"Professional Python patterns for AI apps",color:"purple",
+   type:"learn",
+   tasks:["Review: how HTTP requests work — GET vs POST, headers, body, status codes","Understand REST APIs deeply — you'll call many of them in AI engineering","Learn to use the requests library to call any external API","Practice: call a free public API (OpenWeatherMap or NewsAPI) and process the response","Understand environment management: .env files, never commit secrets to Git","Learn .gitignore properly — add .env and venv/ before your first commit","Understand Python virtual environments deeply — why they exist, how they work","Learn pip freeze > requirements.txt and why it matters for reproducibility","Practice: set up a clean project from scratch using requirements.txt","Understand async Python basics — why async matters for production AI apps (concepts only)"],
+   resources:["requests library docs","python-dotenv docs","Real Python — virtual environments","HTTP crash course — MDN"],
+   project:null,
+   tip:"Add .gitignore before your first commit, not after. Leaked API keys on GitHub are a real and common security incident."
+  },
+  {w:2,d:13,title:"Multi-turn patterns and state management",sub:"How to build AI apps that remember context",color:"purple",
+   type:"learn",
+   tasks:["Understand the stateless nature of LLM APIs — each call is independent","Three approaches to memory: in-context (send history), external (database), summarized","Implement in-context memory: the messages list pattern — pros and cons","Implement external memory: save conversation to a JSON file, load on startup","Implement summarized memory: when history gets long, summarize older parts","Understand user vs session identity — how to manage multiple users","Build a simple conversation manager class with all three memory strategies","Test: which strategy is best for different use cases? Document your findings","Learn about stateful vs stateless architectures — important for production","Understand why stateless is preferred in production and what that means for AI apps"],
+   resources:["Anthropic long context docs","Python JSON file handling","Real Python — classes and OOP"],
+   project:null,
+   tip:"Memory management is where most beginner AI apps break in production. Get this right early and it saves enormous pain later."
+  },
+  {w:2,d:14,title:"Week 2 project + phase 1 review",sub:"Prompt engineering challenge — prove you've learned",color:"purple",
+   type:"project",
+   tasks:["Choose one of: email assistant, meeting summarizer, study Q&A system, or code explainer","Build it using everything from weeks 1 and 2 — proper prompts, memory, error handling","Write a test set of 15 inputs with expected outputs before you start building","Build the system, then run your test set, score each output","Your target: 85%+ score on your test set","Identify the 3 weakest responses and improve your prompts to fix them","Rerun the test set — did your score improve?","Write a short post-mortem: what worked, what didn't, what you'd do differently","Push to GitHub with a full README including example inputs and outputs","Reflect: you now understand prompt engineering better than most people who claim to know AI"],
+   resources:["Your own notes from weeks 1-2","Braintrust.dev for eval tracking"],
+   project:{title:"A real prompt-engineered app",desc:"Any of: email assistant, meeting summarizer, study Q&A, or code explainer. Built with proper architecture, tested with 15 inputs, scored, and improved.",color:"purple"},
+   tip:"Two weeks in and you already have 2 real projects on GitHub. That's more than most 'AI enthusiasts' have after 6 months."
+  },
+  {w:3,d:15,title:"Python for AI — data handling essentials",sub:"The Python you actually need, nothing more",color:"teal",
+   type:"learn",
+   tasks:["Review Python file I/O — reading and writing text files, JSON files","Learn to read and write CSV files using the csv module and pandas briefly","Understand dictionaries deeply — nested dicts, dict comprehensions, .get() with defaults","Learn list comprehensions — they appear everywhere in AI code","Understand Python classes properly — __init__, self, methods, why they matter","Learn exception handling patterns — try/except/finally, custom exceptions","Understand type hints — def process(text: str) -> dict: — makes code readable","Learn f-strings thoroughly — you'll use them for every prompt template","Practice: build a utility module utils.py with helper functions you'll reuse","Understand Python modules and imports — relative vs absolute imports"],
+   resources:["Real Python — Python basics","Python official docs — data structures","Automate the Boring Stuff — free online"],
+   project:null,
+   tip:"Don't try to learn all of Python. Learn the 20% that appears in 80% of AI engineering code. That's what today covers."
+  },
+  {w:3,d:16,title:"The OpenAI and Anthropic SDKs in depth",sub:"Know your main tools thoroughly",color:"teal",
+   type:"learn",
+   tasks:["Read the Anthropic Python SDK source on GitHub — understand the structure","Understand all parameters: model, max_tokens, temperature, system, messages, stream","Learn about different Claude models — Haiku (fast/cheap), Sonnet (balanced), Opus (powerful)","Understand when to use which model — task complexity vs cost tradeoff","Learn the OpenAI SDK — same concepts, slightly different API shape","Understand response formats — text, JSON mode, tool use","Learn about batch API for processing many inputs cheaply and asynchronously","Understand rate limits — requests per minute, tokens per minute — how to handle them","Build a model router: a function that picks the right model based on task complexity","Practice: run the same 10 prompts through Haiku and Sonnet — compare quality and cost"],
+   resources:["Anthropic SDK GitHub repository","OpenAI Python SDK docs","Anthropic model comparison page"],
+   project:null,
+   tip:"Haiku is 20x cheaper than Opus. For simple tasks like classification or extraction, always use the smallest model that does the job."
+  },
+  {w:3,d:17,title:"What is RAG and why does it exist",sub:"The most important concept in practical AI engineering",color:"teal",
+   type:"learn",
+   tasks:["Understand the core problem: LLMs have a knowledge cutoff and don't know your data","Understand why fine-tuning is not always the answer — expensive, slow, doesn't update easily","Understand RAG: retrieve relevant information at query time and put it in the context","Learn the full RAG pipeline conceptually: load, chunk, embed, store, query, retrieve, generate","Understand embeddings: text converted to vectors — similar meaning = vectors close together","Understand cosine similarity: how we measure how close two vectors are","Visualize it: imagine all sentences as points in space — similar sentences cluster together","Understand vector databases: specialized databases optimized for similarity search","Learn about the tradeoffs: RAG is not perfect — retrieval can fail, context can be irrelevant","Read 3 real-world examples of RAG applications and understand what problem each solved"],
+   resources:["3Blue1Brown — what is a vector (YouTube)","Anthropic RAG docs","Pinecone — what is RAG guide (free article)","Greg Kamradt — RAG from scratch YouTube"],
+   project:null,
+   tip:"Don't start coding RAG until you fully understand it conceptually. RAG bugs are subtle — you need the mental model to debug them."
+  },
+  {w:3,d:18,title:"Embeddings — hands on",sub:"Turn text into vectors, find similar content",color:"teal",
+   type:"learn",
+   tasks:["Install sentence-transformers: pip install sentence-transformers","Generate your first embedding: encode a sentence and print its shape (usually 384 or 768 dims)","Understand what the numbers mean — each dimension encodes a semantic feature","Calculate cosine similarity between two sentences manually using numpy","Test: embed 'The cat sat on the mat' and 'A feline rested on a rug' — are they similar?","Test: embed 'The cat sat on the mat' and 'Stock markets rose today' — are they dissimilar?","Use the Anthropic embeddings API as well — understand the difference in dimensions","Build a simple semantic search: embed 10 sentences, embed a query, return top 3 matches","Understand chunking: why you can't embed a 100-page document as one piece","Learn chunk size tradeoffs: too small = loses context, too large = noisy retrieval"],
+   resources:["sentence-transformers docs","Anthropic embeddings API docs","numpy cosine similarity example","HuggingFace embedding model list"],
+   project:null,
+   tip:"Do the cat/feline similarity test yourself. Seeing the numbers and feeling the intuition click is more valuable than reading any description."
+  },
+  {w:3,d:19,title:"ChromaDB — your first vector database",sub:"Store and query embeddings locally",color:"teal",
+   type:"build",
+   tasks:["Install ChromaDB: pip install chromadb","Understand ChromaDB concepts: collections, documents, embeddings, metadata, IDs","Create a collection and add 20 documents (any text — use Wikipedia snippets)","Query the collection with a natural language question — see what comes back","Understand the results object: documents, distances, metadata","Add metadata to documents: source, date, category — practice filtering by metadata","Build a simple document store class wrapping ChromaDB with add and search methods","Test: add documents on 3 different topics, query each topic — does retrieval work?","Understand persistent storage: saving ChromaDB to disk vs in-memory","Learn the difference between ChromaDB (local), Pinecone (cloud), Supabase Vector (Postgres)"],
+   resources:["ChromaDB quickstart docs","ChromaDB Python API reference","Pinecone — free tier for later"],
+   project:null,
+   tip:"ChromaDB is perfect for learning and prototyping. It runs locally, no account needed, no cost. Use it for all your RAG projects in weeks 3-5."
+  },
+  {w:3,d:20,title:"Document loading and chunking strategies",sub:"How to prepare documents for RAG",color:"teal",
+   type:"learn",
+   tasks:["Install LangChain loaders: pip install langchain langchain-community","Load a PDF using PyPDFLoader — extract text page by page","Load a text file, a markdown file, a web page using appropriate loaders","Understand why raw text needs cleaning before chunking — headers, page numbers, junk","Learn fixed-size chunking: split every N characters with M character overlap","Learn recursive character splitting — LangChain's RecursiveCharacterTextSplitter","Understand overlap: why 10-20% overlap between chunks prevents losing context at boundaries","Learn semantic chunking: splitting by meaning rather than character count","Practice: chunk the same document 3 ways and compare which retrieves better for your queries","Build a document pipeline function: path → clean text → chunks → ready for embedding"],
+   resources:["LangChain document loaders docs","LangChain text splitters docs","Greg Kamradt — chunking strategies YouTube","PyPDF2 or pymupdf for PDF processing"],
+   project:null,
+   tip:"Chunking strategy is one of the biggest levers for RAG quality. Most tutorials just use default settings. Take the time to understand why chunk size matters."
+  },
+  {w:3,d:21,title:"Week 3 project — build your PDF chat system",sub:"First complete RAG application",color:"teal",
+   type:"project",
+   tasks:["Build a complete PDF Q&A system from scratch using everything this week","Components: PDF loader → text cleaner → chunker → embedder → ChromaDB store → retriever → LLM","Let the user specify a PDF path at startup — load and index it","Accept questions in a loop — retrieve top 3 relevant chunks — pass to Claude with context","Always cite which chunk (page number, text snippet) the answer came from","Add a confidence indicator: if retrieved chunks seem irrelevant, say so","Handle edge cases: PDF with no extractable text, empty queries, API errors","Test with 3 different PDFs and 10 questions each — where does it fail?","Improve the chunking and retrieval based on what you observe failing","Push to GitHub — this is your most impressive project so far"],
+   resources:["LangChain RAG tutorial","ChromaDB docs","Anthropic messages API"],
+   project:{title:"PDF chat system",desc:"Upload any PDF and ask questions. Returns answers with source citations. Built from scratch — no LangChain for the LLM part, just the loaders.",color:"teal"},
+   tip:"Build the retrieval part first and test it independently before adding the LLM. Retrieval bugs are invisible if you only test the full pipeline."
+  },
+  {w:4,d:22,title:"Improving RAG — reranking and hybrid search",sub:"Make your retrieval actually good",color:"teal",
+   type:"learn",
+   tasks:["Understand why top-k vector search isn't always enough — semantic similarity has limits","Learn about reranking: take top 10 results, use a cross-encoder to reorder by relevance","Install sentence-transformers cross-encoder and try reranking your PDF chat results","Understand BM25 — traditional keyword search that complements semantic search","Install rank-bm25 library and build a simple keyword search over your chunks","Understand hybrid search: combine BM25 scores and vector similarity scores","Learn Reciprocal Rank Fusion: a simple formula for combining ranked lists","Build hybrid search for your PDF chatbot — does quality improve?","Understand the latency vs quality tradeoff — reranking adds latency","Learn about query expansion: generate multiple versions of the user's question to improve recall"],
+   resources:["Cohere reranking docs (free tier available)","rank-bm25 GitHub","Pinecone — hybrid search guide","sentence-transformers cross-encoders docs"],
+   project:null,
+   tip:"Hybrid search (BM25 + vector) almost always outperforms pure vector search. It's worth the extra complexity for any production RAG system."
+  },
+  {w:4,d:23,title:"Advanced RAG patterns",sub:"Multi-query, HyDE, parent-child retrieval",color:"teal",
+   type:"learn",
+   tasks:["Learn multi-query retrieval: generate 3 variations of the user's question, run all 3, deduplicate","Implement multi-query in your PDF chatbot — compare results quality","Learn HyDE (Hypothetical Document Embeddings): generate a fake answer, embed it, search for similar real content","Understand why HyDE works: a hypothetical answer is in the same semantic space as real answers","Learn parent-child chunking: index small chunks for retrieval, return larger parent for context","Implement parent-child chunking: small 200-token child chunks, 800-token parent returned","Learn about metadata filtering: filter by date, category, author before vector search","Practice: add metadata to your PDF chunks (page number, section) and filter by page range","Understand contextual compression: after retrieval, compress chunks to only the relevant parts","Build a RAG config object: makes it easy to switch between different RAG strategies"],
+   resources:["LangChain advanced RAG tutorial","Greg Kamradt — advanced RAG YouTube","Anthropic long context best practices"],
+   project:null,
+   tip:"Multi-query retrieval is the easiest 20% improvement you can make to any RAG system. Add it to every RAG project you build."
+  },
+  {w:4,d:24,title:"Introduction to agents and tool use",sub:"AI that acts, not just responds",color:"teal",
+   type:"learn",
+   tasks:["Understand what an agent is: LLM + tools + a loop that runs until task is complete","Understand tool use / function calling: the model can call functions you define","Learn the tool use flow: model decides to call a tool → you run the function → return result → model continues","Understand the ReAct pattern: Reason (what should I do) → Act (call a tool) → Observe (see result) → repeat","Learn how to define a tool in the Anthropic API: name, description, input_schema","Write your first tool: a calculator function — name, description, parameters, implementation","Test: ask Claude to solve a math problem it would normally get wrong — does it use the calculator?","Understand that the model decides WHEN to use tools — good descriptions are critical","Learn about tool call IDs and how to match tool results back to tool calls","Understand multi-tool calls: model can call multiple tools in one response"],
+   resources:["Anthropic tool use documentation — thorough, read all of it","OpenAI function calling guide","ReAct paper — arxiv summary"],
+   project:null,
+   tip:"Tool descriptions are everything. A poorly described tool won't get used. A well-described tool gets used exactly when you want it."
+  },
+  {w:4,d:25,title:"Building your first agent",sub:"Multiple tools, real decision-making",color:"teal",
+   type:"build",
+   tasks:["Build an agent with 4 tools: web_search (use Tavily free API), read_file, write_file, calculate","Implement the agent loop: call LLM → check for tool use → execute tool → continue loop → stop when done","Add a max_iterations limit — prevent infinite loops, a real production concern","Implement proper error handling: what if a tool call fails? Pass the error back to the model","Add logging: print each step — what the model decided, what tool it called, what result came back","Test: ask the agent to research a topic and save a summary to a file — does it work?","Add a 'done' tool: the model calls this when it thinks the task is complete","Understand the difference between tool use and regular generation — know when agents are overkill","Test with increasingly complex tasks — where does it break?","Debug one failure: read the tool call log, understand what went wrong, fix it"],
+   resources:["Tavily API — free tier for web search","Anthropic tool use cookbook","LangGraph quickstart — for later"],
+   project:{title:"Research and save agent",desc:"Give it a topic, it searches the web, reads pages, synthesizes findings, and saves a structured report to a file. Multi-tool, proper loop, error handling.",color:"teal"},
+   tip:"Add logging from the very start. Agents are impossible to debug without knowing what they decided and why at each step."
+  },
+  {w:4,d:26,title:"LangGraph — reliable agent workflows",sub:"State machines for AI agents",color:"teal",
+   type:"learn",
+   tasks:["Understand why raw agent loops are fragile — state management gets messy","Understand what LangGraph is: a framework for building stateful agent workflows as graphs","Learn LangGraph concepts: nodes (functions), edges (transitions), state (shared data)","Build a simple 3-node LangGraph: input → process → output","Understand conditional edges: different paths based on state","Rebuild your research agent using LangGraph — compare code clarity","Learn about checkpointing: saving and resuming agent state","Understand human-in-the-loop: pausing an agent to wait for human approval","Build a LangGraph agent that requires human confirmation before writing any file","Learn about LangSmith: the observability layer for LangGraph agents (free tier)"],
+   resources:["LangGraph official documentation","LangGraph quickstart tutorial","LangSmith docs — tracing and observability"],
+   project:null,
+   tip:"LangGraph is verbose at first but it forces you to think clearly about your agent's state and transitions. That clarity prevents many bugs."
+  },
+  {w:4,d:27,title:"Multi-agent systems — concepts and basics",sub:"Agents that coordinate with each other",color:"teal",
+   type:"learn",
+   tasks:["Understand why one agent isn't always enough — task decomposition and specialization","Learn supervisor pattern: one agent breaks the task, specialist agents execute","Learn pipeline pattern: agents pass outputs sequentially like an assembly line","Understand the debate/reflection pattern: one agent generates, another critiques, first agent improves","Build a simple 2-agent system: a researcher agent and a writer agent","Researcher collects information, passes structured data to writer, writer produces final output","Understand the coordination challenge: how do agents communicate state?","Learn about shared memory for agents — a common state object","Understand when multi-agent is overkill — most tasks don't need it","Test your 2-agent system on 5 different tasks — observe coordination failures"],
+   resources:["LangGraph multi-agent docs","Anthropic multi-agent guide","AutoGen documentation (Microsoft)"],
+   project:null,
+   tip:"Most real-world use cases need 1-2 agents max. Multi-agent systems are exciting but add coordination complexity. Start simple."
+  },
+  {w:4,d:28,title:"Week 4 project — advanced research agent",sub:"Multi-tool, multi-step, with LangGraph",color:"teal",
+   type:"project",
+   tasks:["Rebuild your week 4 day 25 agent using LangGraph for better structure","Add 6 tools: web_search, fetch_url, extract_text_from_url, write_file, read_file, summarize_text","Add a planning step: agent first creates a research plan, then executes it","Add a review step: after research, agent reviews its own output and identifies gaps","Add a final formatting step: structure the output as a proper markdown report","Test with 5 different research topics — at least 2 should require multiple search queries","Add LangSmith tracing so you can visualize the agent's decision tree","Measure: average steps per task, average cost per task, success rate on your 5 test topics","Write a reflection: what was hard, what surprised you, what would you build next","Push to GitHub — this is an impressive portfolio piece"],
+   resources:["LangGraph full tutorial","LangSmith quickstart","Tavily docs"],
+   project:{title:"Production research agent",desc:"A LangGraph-based research agent with 6 tools, planning step, self-review, and LangSmith tracing. Outputs formatted markdown reports.",color:"teal"},
+   tip:"The planning step (where the agent outlines what it will do before doing it) dramatically improves quality. It's like asking a human to think before acting."
+  },
+  {w:5,d:29,title:"Evals — why they matter and how to build them",sub:"The skill that separates real engineers",color:"teal",
+   type:"learn",
+   tasks:["Understand the evaluation problem: how do you know if your AI system works?","Learn about the three levels of evals: unit tests, integration tests, human evaluation","Build a golden dataset: 20 question-answer pairs for your PDF chatbot","Understand precision@k: of the top k retrieved chunks, how many are actually relevant?","Understand faithfulness: does the generated answer only use information from retrieved context?","Understand answer relevance: does the answer actually address the question?","Install RAGAS: pip install ragas — a framework for RAG evaluation","Run RAGAS on your PDF chatbot with your golden dataset","Read the RAGAS scores — identify your weakest metric","Improve one aspect of your RAG system based on the eval results and rerun"],
+   resources:["RAGAS documentation and quickstart","DeepLearning.AI — evals short course (free)","Braintrust.dev — free eval platform","Confident-AI (DeepEval) library"],
+   project:null,
+   tip:"Your RAGAS score will be lower than you expect. That's fine — it's a baseline. The goal is to improve it systematically."
+  },
+  {w:5,d:30,title:"LLM-as-judge and custom eval metrics",sub:"Using AI to evaluate AI",color:"teal",
+   type:"learn",
+   tasks:["Understand LLM-as-judge: use a powerful model to evaluate another model's output","Build a simple judge: a prompt that rates responses 1-5 on a rubric you define","Understand the bias in LLM-as-judge: models prefer their own outputs, verbose outputs, etc.","Learn to design rubrics that minimize judge bias — specific, observable criteria","Implement pairwise comparison: show judge two responses, ask which is better and why","Build a custom eval metric for your specific use case — what matters for your app?","Understand G-eval: a framework for LLM evaluation with chain of thought scoring","Implement a hallucination detector: a prompt that checks if an answer is supported by source text","Automate your eval pipeline: run evals on every code change (concept of CI for AI)","Build a simple eval dashboard: a script that runs all evals and prints a summary table"],
+   resources:["G-eval paper summary","DeepEval library — custom metrics","OpenAI evals framework — GitHub","Anthropic model grading examples"],
+   project:null,
+   tip:"Always use a stronger/different model as the judge than the one you're evaluating. Don't use Claude to judge Claude outputs without awareness of self-preference bias."
+  },
+  {w:5,d:31,title:"Observability and tracing",sub:"Know what your system is actually doing",color:"teal",
+   type:"learn",
+   tasks:["Understand why logging is not enough for AI systems — you need structured traces","Set up LangSmith: create account, get API key, add to .env","Instrument your PDF chatbot with LangSmith tracing — 3 lines of code","View a trace: see every LLM call, tool call, input, output, latency, and cost","Understand trace hierarchy: parent spans and child spans","Add custom metadata to traces: user ID, session ID, task type","Set up LangSmith datasets from your traces — capture real failures","Build a feedback loop: when you see a bad trace, add it to your eval dataset","Learn about Braintrust as an alternative — compare to LangSmith","Understand cost tracking: LangSmith shows cost per trace — find your expensive operations"],
+   resources:["LangSmith quickstart","LangSmith cookbook","Braintrust.dev documentation"],
+   project:null,
+   tip:"The first time you see a trace and understand exactly what your agent was thinking at each step is a genuinely powerful moment. It changes how you debug AI systems."
+  },
+  {w:5,d:32,title:"Improving reliability — guardrails and validation",sub:"Making AI systems you can trust",color:"teal",
+   type:"learn",
+   tasks:["Understand the reliability problem: LLM outputs are probabilistic — how do you ensure consistency?","Learn input validation: check user inputs before they reach the LLM","Learn output validation: check LLM outputs before they reach the user","Implement schema validation: use Pydantic to validate that outputs match expected format","Build a retry-with-correction loop: if output fails validation, send error back with request to fix","Learn about Guardrails AI library: pip install guardrails-ai","Implement a content safety check: detect if user is trying to misuse your system","Build a rate limiter: prevent a single user from hammering your API","Understand graceful degradation: when AI fails, fall back to a safe default response","Write a reliability checklist: things to verify before deploying any AI system"],
+   resources:["Guardrails AI documentation","Pydantic validation docs","Anthropic safety guidelines","OWASP LLM top 10 vulnerabilities"],
+   project:null,
+   tip:"The most dangerous moment in AI engineering is when you're so excited about a feature working that you forget to think about how it can fail."
+  },
+  {w:5,d:33,title:"Latency optimization",sub:"Making your AI apps fast enough to use",color:"teal",
+   type:"learn",
+   tasks:["Understand latency sources: network RTT, model inference time, token generation speed","Measure baseline latency for your PDF chatbot — time each step","Learn about streaming: why it makes apps feel 10x faster even when total time is the same","Implement streaming properly in your chatbot — stream to the user while generating","Learn about async Python: asyncio, async/await — why it matters for production","Build async API calls: call the LLM while simultaneously doing retrieval","Understand caching strategies: cache embeddings, cache common query results","Implement embedding caching: don't re-embed the same document twice","Learn about model selection for latency: Haiku is 3x faster than Sonnet","Profile your app: which step takes the longest? Focus optimization there."],
+   resources:["Python asyncio docs","Anthropic streaming docs","Real Python — async Python","aiohttp library for async HTTP"],
+   project:null,
+   tip:"Streaming is the single highest ROI latency optimization. It makes your app feel instant even when the total response takes 10 seconds."
+  },
+  {w:5,d:34,title:"Week 5 project — the AI data analyst",sub:"Your most impressive project so far",color:"teal",
+   type:"project",
+   tasks:["Build a system that accepts a CSV file and lets users ask questions in plain English","Step 1: load CSV, understand its columns and data types automatically","Step 2: user asks a question like 'which product had highest sales in Q3?'","Step 3: system generates a SQL query or pandas code to answer the question","Step 4: execute the query/code against the data","Step 5: return the result + a plain English explanation","Add error handling: if generated code fails, try to fix and retry automatically","Add chart generation: if user asks for a trend, generate a matplotlib chart","Test with 3 different CSVs on 15 questions each — find failure patterns","Add LangSmith tracing so you can see every decision the system makes","This project combines your SQL knowledge + Python + AI engineering — very unique portfolio item"],
+   resources:["pandas documentation","matplotlib docs","Python csv module","LangSmith for tracing"],
+   project:{title:"AI data analyst",desc:"Input any CSV. Ask questions in plain English. Get SQL/pandas code executed against the data, with plain English explanations and charts. Your SQL knowledge shines here.",color:"teal"},
+   tip:"This project is uniquely yours because of your SQL background. Frame it that way on your CV: 'built an AI system that translates natural language to SQL queries'."
+  },
+  {w:6,d:35,title:"Ollama — running models locally",sub:"Free, private, no API costs",color:"amber",
+   type:"learn",
+   tasks:["Download and install Ollama from ollama.ai","Pull your first model: ollama pull llama3.2 — wait for download","Run it in terminal: ollama run llama3.2 — have a conversation","Pull a smaller model: ollama pull phi3 — compare quality vs speed","Understand model quantization: 4-bit vs 8-bit vs full precision — what each means for quality","Pull a code-specialized model: ollama pull codellama","Use Ollama's Python API: same interface as OpenAI — drop-in replacement","Rebuild your PDF chatbot using Ollama instead of the Anthropic API","Compare: Ollama quality vs Claude API quality for your specific use case","Compare: Ollama speed on your machine vs API latency — note the difference"],
+   resources:["Ollama official docs","Ollama Python library","LM Studio — GUI alternative to Ollama","Hugging Face — GGUF model files"],
+   project:null,
+   tip:"Ollama is invaluable for development. Build and test locally with zero cost, then swap to the API for production. Your architecture should make this swap trivial."
+  },
+  {w:6,d:36,title:"Hugging Face ecosystem",sub:"The GitHub of AI — navigate it confidently",color:"amber",
+   type:"learn",
+   tasks:["Create a Hugging Face account — you'll use this to deploy later","Understand the Hugging Face hub: models, datasets, spaces — what each is for","Learn to search for models: filter by task (text-generation, embedding, classification)","Understand model cards: what information they contain and how to read them","Understand GGUF format: quantized models compatible with Ollama and llama.cpp","Learn the transformers library basics: pip install transformers","Run a small local model using transformers pipeline — text classification example","Understand the Inference API: run models via API without downloading them","Download a dataset from Hugging Face — explore it with pandas","Understand Spaces: hosted Gradio/Streamlit apps — this is where you'll deploy your portfolio project"],
+   resources:["Hugging Face documentation","Hugging Face course (free, excellent)","transformers library quickstart","Gradio documentation"],
+   project:null,
+   tip:"Hugging Face Spaces is completely free for basic apps. It's the easiest way to get your projects online and shareable — use it for your portfolio."
+  },
+  {w:6,d:37,title:"Fine-tuning concepts and when to use it",sub:"Understanding the most misunderstood technique",color:"amber",
+   type:"learn",
+   tasks:["Understand what fine-tuning is: continuing training on new data to adapt model behavior","Understand when NOT to fine-tune: most problems are solved by better prompting + RAG","Learn the 4 legitimate use cases for fine-tuning: style consistency, specialized knowledge, format, efficiency","Understand LoRA: Low-Rank Adaptation — why it makes fine-tuning practical on consumer hardware","Understand QLoRA: quantized LoRA — fine-tune a 7B model on a laptop","Learn about the training data requirements: quantity, quality, format","Understand overfitting: training too long makes the model forget general capabilities","Learn about evaluation during fine-tuning: train/validation/test splits","Set up a simple fine-tuning run using Axolotl or Unsloth on Google Colab (free GPU)","Fine-tune a small model (phi3 or gemma-2b) on a tiny custom dataset — 100 examples is enough to see it work"],
+   resources:["Unsloth — fast fine-tuning library","Axolotl — fine-tuning framework","Google Colab — free GPU access","DeepLearning.AI — fine-tuning short course (free)"],
+   project:null,
+   tip:"Do the fine-tuning experiment even if you never use it in production. Understanding it deeply changes how you think about prompting and RAG."
+  },
+  {w:6,d:38,title:"Vector databases in depth — Pinecone and Supabase",sub:"Production-grade storage for embeddings",color:"amber",
+   type:"learn",
+   tasks:["Create a free Pinecone account and set up your first index","Understand Pinecone concepts: indexes, namespaces, vectors, metadata, sparse-dense hybrid","Migrate your PDF chatbot from ChromaDB to Pinecone — measure the difference","Understand Supabase Vector: pgvector extension for PostgreSQL — use SQL you already know","Create a Supabase project, enable pgvector, store embeddings in a table","Query Supabase Vector using SQL: SELECT + cosine similarity operator","Compare ChromaDB vs Pinecone vs Supabase Vector: when to use each","Understand production concerns: index size limits, query latency at scale, cost per query","Learn about index types: HNSW vs IVF — approximate nearest neighbor tradeoffs","Build a benchmark: index 1000 documents in each, measure query latency and recall"],
+   resources:["Pinecone documentation","Supabase Vector docs","pgvector GitHub","ChromaDB production deployment guide"],
+   project:null,
+   tip:"Supabase Vector is underrated. If your app already uses PostgreSQL, adding vector search is trivial — no new service, no new mental model."
+  },
+  {w:6,d:39,title:"Building a Streamlit UI for your projects",sub:"From CLI to real web apps in hours",color:"amber",
+   type:"build",
+   tasks:["Install Streamlit: pip install streamlit","Build hello world: streamlit run app.py — understand the development loop","Learn Streamlit core widgets: st.text_input, st.button, st.selectbox, st.slider, st.file_uploader","Learn layout: st.columns, st.sidebar, st.expander","Learn state management: st.session_state — critical for chatbots","Add a UI to your PDF chatbot: file uploader, chat interface, source display","Add a UI to your AI data analyst: CSV uploader, question input, results table, chart display","Understand Streamlit's rerun model: every interaction reruns the script — think accordingly","Add a progress bar for long operations: st.progress and st.spinner","Style your app: st.set_page_config for title, icon, and layout"],
+   resources:["Streamlit documentation","Streamlit components gallery","Streamlit cheat sheet","30 days of Streamlit — official challenge"],
+   project:{title:"Streamlit UI for your best project",desc:"Take your strongest project from weeks 3-5 and build a proper Streamlit interface. File upload, chat or query interface, results display, error messages.",color:"amber"},
+   tip:"Streamlit is remarkably fast to build with. A good UI makes the same underlying code 10x more impressive to anyone you show it to."
+  },
+  {w:6,d:40,title:"Prompt caching and cost optimization",sub:"Production cost management",color:"amber",
+   type:"learn",
+   tasks:["Understand Anthropic prompt caching: repeated system prompts are cached and cheaper","Enable prompt caching in your chatbot: add cache_control to your system prompt","Measure cost before and after — calculate the savings on a 100-message conversation","Understand OpenAI's automatic caching — different mechanism, same benefit","Learn batch processing: Anthropic Batch API processes requests asynchronously at 50% cost","Build a batch processing script: process 100 documents and embed them using the batch API","Learn to estimate costs before running: calculate expected tokens × price before a job","Build a cost tracker: log actual costs per session to a file","Understand the cost vs quality tradeoff at a system level: where is it worth spending more?","Create a cost optimization checklist for AI applications"],
+   resources:["Anthropic prompt caching docs","Anthropic batch API docs","Token pricing calculator — build your own","LangSmith cost tracking"],
+   project:null,
+   tip:"Prompt caching can reduce costs by 80-90% for applications with long system prompts. Enable it on every project — it's a one-line change."
+  },
+  {w:6,d:41,title:"Week 6 project — eval your best project completely",sub:"Apply everything to make one project production-ready",color:"amber",
+   type:"project",
+   tasks:["Pick your strongest project from weeks 3-5 — likely the PDF chatbot or AI data analyst","Build a comprehensive eval suite with 30 test cases covering normal use and edge cases","Run RAGAS or your custom eval framework — get baseline scores on all metrics","Add LangSmith tracing throughout the entire application","Add Streamlit UI if not already done","Add prompt caching to reduce API costs","Add input validation and output validation with Pydantic","Add proper error messages that help users understand what went wrong","Add logging that captures every failure for later analysis","Deploy to Hugging Face Spaces — get a public URL you can share","Share the URL with 3 people and ask them to try to break it — collect their feedback"],
+   resources:["RAGAS docs","LangSmith deployment","Hugging Face Spaces deployment guide"],
+   project:{title:"Production-ready AI app",desc:"Your best project made production-worthy: proper evals, tracing, UI, caching, validation, and deployed publicly on Hugging Face Spaces.",color:"amber"},
+   tip:"Sharing your app with real users and watching them break it in unexpected ways teaches you more than any tutorial. Do this every time you deploy something."
+  },
+  {w:7,d:42,title:"Advanced agent patterns",sub:"Memory, planning, and self-reflection",color:"amber",
+   type:"learn",
+   tasks:["Learn about long-term agent memory: storing and retrieving facts across sessions","Implement agent memory using a simple JSON file: write facts, retrieve relevant ones","Learn about the Reflexion pattern: agent reflects on its failures and updates its approach","Implement a simple Reflexion loop: if task fails, agent writes a reflection and retries","Learn about Tree of Thoughts: exploring multiple reasoning paths simultaneously","Understand agent planning: having the agent write a plan before executing","Build a planning agent: step 1 is always to outline the approach, then execute the plan","Learn about agent orchestration: one top-level agent coordinates specialist sub-agents","Build a 3-agent pipeline for a complex task of your choice","Understand where agents fail at scale: coordination overhead, error propagation, cost explosion"],
+   resources:["Reflexion paper summary","Tree of Thoughts implementation","LangGraph multi-agent patterns","Anthropic agents guide"],
+   project:null,
+   tip:"The planning step ('first write a plan, then execute it') is the single best improvement you can make to any agent. It's like giving the model a chance to think before acting."
+  },
+  {w:7,d:43,title:"LLM security and safety in production",sub:"Things that will hurt you if you ignore them",color:"amber",
+   type:"learn",
+   tasks:["Understand prompt injection deeply: how it works, why it's serious, real examples","Build 5 prompt injection attacks against your own applications — understand your vulnerabilities","Learn defense strategies: input sanitization, output validation, separate instruction channel","Understand jailbreaking: attempts to override system prompts — how to make your app more resistant","Learn about data leakage: how to prevent your RAG system from leaking sensitive documents","Understand PII handling: detecting and redacting personal information in user inputs and outputs","Learn about rate limiting and abuse prevention — protect your API key costs","Understand model output monitoring: flagging unexpected or harmful outputs","Build a simple content moderation layer using the Anthropic safety APIs","Write a security review document for one of your existing projects — identify and fix vulnerabilities"],
+   resources:["OWASP LLM Top 10 — must read","Anthropic responsible AI guidelines","Lakera AI — LLM security resources","Garak — LLM security testing library"],
+   project:null,
+   tip:"Before you show any AI app to real users, run the OWASP LLM Top 10 checklist against it. Takes 2 hours and prevents serious problems."
+  },
+  {w:7,d:44,title:"Deployment — getting your apps online",sub:"Railway, Render, and Hugging Face Spaces",color:"amber",
+   type:"learn",
+   tasks:["Understand deployment options: Hugging Face Spaces (free), Railway (easy), Render (flexible), AWS (powerful)","Learn Docker basics: what it is, why it matters, how to write a Dockerfile for a Python app","Write a Dockerfile for your Streamlit PDF chatbot","Understand environment variables in production: different from local .env files","Deploy your Streamlit app to Hugging Face Spaces: connect GitHub repo, configure secrets","Set up a Railway project: connect GitHub, add environment variables, deploy","Understand CI/CD basics: every push to main automatically redeploys your app","Learn about secrets management in production: never hardcode, use platform secret stores","Set up health checks: a /health endpoint your deployment platform pings","Monitor your deployment: set up alerts if the app goes down or errors spike"],
+   resources:["Hugging Face Spaces deployment docs","Railway documentation","Docker getting started guide","Render free tier documentation"],
+   project:null,
+   tip:"Hugging Face Spaces is the easiest option for Streamlit/Gradio apps. Railway is better for FastAPI backends. Use Spaces for portfolio projects."
+  },
+  {w:7,d:45,title:"FastAPI — building AI backends",sub:"From scripts to real APIs",color:"amber",
+   type:"learn",
+   tasks:["Install FastAPI and uvicorn: pip install fastapi uvicorn","Understand why FastAPI: automatic docs, type validation, async support, fast development","Build a hello world FastAPI app with a /health endpoint","Build a /chat endpoint that accepts a message and returns an LLM response","Build a /upload endpoint that accepts a PDF and indexes it using your RAG pipeline","Understand Pydantic models for request/response validation — you already know Pydantic","Add API key authentication: require a bearer token to use your API","Add rate limiting: prevent abuse using a simple in-memory counter","Generate and read the automatic OpenAPI docs at /docs — understand what FastAPI gives you for free","Deploy your FastAPI app to Railway — now you have a real API endpoint"],
+   resources:["FastAPI official documentation","FastAPI tutorial — full featured","uvicorn docs","FastAPI security docs"],
+   project:null,
+   tip:"FastAPI's automatic /docs endpoint means you get a complete interactive API documentation page for free. This makes sharing your API with others trivially easy."
+  },
+  {w:7,d:46,title:"Open source model deep dive",sub:"When and how to use local models seriously",color:"amber",
+   type:"learn",
+   tasks:["Understand the current open source model landscape: Llama 3.2, Mistral, Phi-3, Gemma 2, Qwen","Learn to evaluate models for your specific task — don't just use the biggest one","Run benchmarks on your own tasks: test Phi-3 vs Llama 3.2 on your PDF chat questions","Understand context length differences between open source models","Learn about model merging: combining fine-tuned models — concept only","Understand the Ollama model library: what models are available and their sizes","Learn about vLLM: high-performance inference server for production deployment","Understand OpenRouter: access many models through one API — useful for experiments","Build a model comparison script: same 20 questions through 3 different models, compare quality","Decide: for your portfolio project, which model is the right choice and why? Write your reasoning"],
+   resources:["Open LLM leaderboard — Hugging Face","Ollama model library","OpenRouter documentation","vLLM GitHub"],
+   project:null,
+   tip:"The model that wins on benchmarks isn't always the best for your specific task. Always test on your actual data before committing to a model."
+  },
+  {w:7,d:47,title:"Building a complete knowledge base assistant",sub:"Combining RAG, agents, UI, and deployment",color:"amber",
+   type:"project",
+   tasks:["Build a knowledge base assistant that can ingest multiple document types: PDF, TXT, markdown, web URLs","Use Pinecone or Supabase Vector for production-grade storage","Add an agent layer: the assistant can search the knowledge base AND search the web when needed","Build a clean Streamlit UI: document upload, chat interface, source citations, confidence scores","Add user session management: each user has their own document namespace","Add document management: users can see what documents are indexed and delete them","Add an eval suite: 25 test questions across different document types","Add LangSmith tracing throughout","Deploy to Hugging Face Spaces or Railway","Write a comprehensive README with architecture diagram, setup instructions, and example queries"],
+   resources:["Pinecone namespaces docs","Streamlit session state","LangSmith cookbook"],
+   project:{title:"Knowledge base assistant",desc:"Multi-document, multi-format RAG assistant with agent web search fallback, Streamlit UI, user namespaces, and full observability. Deployed and publicly accessible.",color:"amber"},
+   tip:"This project shows everything: RAG, agents, UI, deployment, tracing. If you have one project to show in an interview, this is it."
+  },
+  {w:8,d:48,title:"Portfolio project — choose and plan",sub:"The project that goes on your CV",color:"coral",
+   type:"plan",
+   tasks:["Review all projects built so far — pick the strongest or start something new","If starting new: choose from the best options — AI tutor, code reviewer, business intelligence tool, Nepal-specific assistant","Write a proper project specification: problem, solution, architecture, tech stack, success metrics","Draw your architecture diagram on paper — what components, how do they connect","Write your eval plan: what 25 test cases will you use to measure success?","Set up your project repository with a clean structure from day 1","Write a placeholder README with all sections: overview, architecture, setup, usage, examples","Plan your 7 days: what gets built each day, what is the MVP, what is the stretch goal","Identify risks: what could go wrong, what are the hard parts?","Set up LangSmith tracing and your eval framework before writing any application code"],
+   resources:["Your previous project codebases","Streamlit or FastAPI depending on your choice","LangSmith for observability"],
+   project:null,
+   tip:"The README you write today tells you if your project is well-scoped. If you can't write a clear one-paragraph summary of what it does, the scope is unclear."
+  },
+  {w:8,d:49,title:"Portfolio project — core architecture",sub:"Build the skeleton, get data flowing",color:"coral",
+   type:"build",
+   tasks:["Build the core data pipeline first — input → processing → storage","Do not build the UI today — backend first, always","Set up your vector database and verify documents are indexing correctly","Build and test your retrieval pipeline independently — before adding the LLM","Build your core prompt template — test it manually with 10 queries","Add LangSmith tracing from the very start — trace every call","Run your first 5 eval test cases — even before the full app is built","Identify what's working and what needs fixing before going further","Commit working code to GitHub at the end of the day","Write a brief daily log: what you built, what works, what tomorrow needs"],
+   resources:["Your existing code from weeks 3-7","LangSmith quickstart"],
+   project:null,
+   tip:"Building retrieval before generation, and testing both independently, is the most important architectural discipline in RAG development."
+  },
+  {w:8,d:50,title:"Portfolio project — core features",sub:"The main functionality, working end to end",color:"coral",
+   type:"build",
+   tasks:["Build the main user-facing functionality end to end — the happy path","Add error handling for every step: what happens if each component fails?","Run your full eval suite of 25 test cases — record the baseline score","Identify the 5 worst-performing test cases — fix the most impactful one today","Add proper logging throughout using Python's logging module","Add cost tracking: log token usage and estimated cost per session","Test the full flow yourself for 30 minutes — use it as a real user would","Fix the 3 most annoying things you encounter during your 30 minute test","Commit to GitHub with a meaningful commit message describing what works","Update your README with accurate current state"],
+   resources:["Python logging docs","Your eval framework from week 5-6"],
+   project:null,
+   tip:"Using your own product for 30 minutes reveals more about what's broken than any automated test. This is not optional."
+  },
+  {w:8,d:51,title:"Portfolio project — UI and polish",sub:"Make it presentable to the world",color:"coral",
+   type:"build",
+   tasks:["Build the Streamlit UI — clean, functional, no unnecessary features","Add a clear onboarding message: what does this app do, how do I use it?","Add proper loading states: spinners for every async operation","Add helpful error messages: if something fails, tell the user what to do next","Add input validation on the frontend: don't let users submit empty queries","Add example queries or a 'try this' section to help first-time users","Make sure it works on mobile Streamlit — check the layout on a phone","Add a sidebar with: about section, tech stack used, your GitHub link","Test the UI with 2 friends — watch them use it without explaining anything","Fix the top 3 UX issues they encounter"],
+   resources:["Streamlit UI best practices","Streamlit components — extra UI elements","Streamlit deployment docs"],
+   project:null,
+   tip:"Watch someone use your app without helping them. Every moment they're confused is a UX problem you need to fix."
+  },
+  {w:8,d:52,title:"Portfolio project — evals and optimization",sub:"Prove it works, make it better",color:"coral",
+   type:"build",
+   tasks:["Run your complete 25-case eval suite — record all scores","Identify your worst metric — work to improve it today","Optimize the top 3 failure cases — better prompts, better chunking, better retrieval?","Add prompt caching if not already — reduce cost for repeated system prompt patterns","Profile your app: which operation is the slowest? Can you make it faster?","Add streaming if not already implemented — improves perceived performance dramatically","Run evals again after optimizations — did scores improve?","Document your eval results in your README — show the numbers, show improvement","Add a 'known limitations' section to your README — honest engineering","Commit everything with clean history"],
+   resources:["RAGAS docs","LangSmith performance profiling","Anthropic prompt caching"],
+   project:null,
+   tip:"Documenting your eval results in your README is a strong signal to anyone evaluating you. It shows you think like an engineer, not a demo builder."
+  },
+  {w:8,d:53,title:"Portfolio project — deployment",sub:"Get it live for the world to use",color:"coral",
+   type:"build",
+   tasks:["Deploy to Hugging Face Spaces — follow their Streamlit deployment guide exactly","Set all environment variables as Spaces secrets — never commit API keys","Test the deployment: is everything working the same as locally?","Add a custom app title and description in the Spaces settings","Share the URL with 3-5 people — get at least 10 real uses captured in LangSmith","Watch LangSmith traces from real users — what are they actually doing?","Fix any deployment-specific bugs that appear","Add a feedback button to your Streamlit app: simple thumbs up/down with optional comment","Set up error alerting: if your app crashes, you want to know","Celebrate — you have a live AI product that real people can use"],
+   resources:["Hugging Face Spaces deployment guide","Streamlit cloud alternative","Railway for FastAPI backends"],
+   project:null,
+   tip:"Real user traces in LangSmith are more valuable than any synthetic test. Watch what real users ask that you never thought of."
+  },
+  {w:8,d:54,title:"Write about what you built",sub:"Public writing is the multiplier on everything you've done",color:"coral",
+   type:"ship",
+   tasks:["Write a LinkedIn post about your 60-day journey — what you built, what you learned","Structure: hook (what you built) → why it matters → what you learned → call to action (GitHub link)","Write a technical README that someone else could use to understand and run your project","Include: problem statement, architecture diagram, tech stack, setup instructions, example queries, known limitations","Write a brief technical blog post on dev.to or hashnode — 500-800 words about one technical challenge you solved","Describe the problem, your approach, what you tried that failed, what worked","Share your GitHub profile link — make sure all 3-4 projects are well-documented","Update your LinkedIn profile: add AI Engineering to skills, add projects section","Write a 3-sentence summary of each project for your CV","Post everything — LinkedIn, GitHub, anywhere your peers will see it"],
+   resources:["dev.to — free technical blogging","hashnode — developer blog platform","LinkedIn for developers guide"],
+   project:null,
+   tip:"One good LinkedIn post about a real project you built gets more attention than 100 certificates. Engineers who write publicly about what they build are remembered."
+  },
+  {w:8,d:55,title:"Interview prep — technical concepts",sub:"Know how to talk about what you know",color:"coral",
+   type:"prep",
+   tasks:["Write answers to: 'What is RAG and when would you use it?' — practice saying it in 2 minutes","Write answers to: 'What are agents and what are their limitations?'","Write answers to: 'How do you evaluate an LLM application?'","Write answers to: 'What is prompt injection and how do you defend against it?'","Write answers to: 'When would you fine-tune vs use RAG vs prompt engineer?'","Write answers to: 'How would you reduce the cost of your AI application?'","Practice explaining your portfolio project in 3 minutes — problem, solution, architecture, results","Prepare to walk through your code — know every function you wrote","Prepare for: 'What would you improve about this project?' — be honest and specific","Do one mock technical interview with a friend — explain one of your projects end to end"],
+   resources:["Your own project READMEs","LeetCode for Python basics refresh","Common AI engineering interview questions — search on Medium"],
+   project:null,
+   tip:"The best interview answer to 'tell me about a project' is a specific story: problem → what you tried → what failed → what worked → what you'd do better. Not a feature list."
+  },
+  {w:8,d:56,title:"Day 60 — review, reflect, plan forward",sub:"What you've built, where you go next",color:"coral",
+   type:"reflect",
+   tasks:["List every project you built — count them, read your own READMEs","List every concept you can now explain confidently to another person","Identify your 3 strongest skills after 60 days — be specific and honest","Identify your 2 biggest knowledge gaps — be honest about what you still don't fully understand","Read your week 1 notes — notice how far your understanding has grown","Update your CV with all projects, skills, and what you've learned","Apply to at least 3 internships or junior positions today — don't wait to feel more ready","Write your 3-month plan: what will you learn next, what will you build next","Post a day 60 update on LinkedIn — the journey, the outcome, what's next","Identify one person in the field to reach out to — a cold message about their work, not asking for a job"],
+   resources:["LinkedIn job search — AI engineer Nepal","Glassdoor for company research","Leapfrog, Fusemachines, Nimbus — Nepal AI companies"],
+   project:{title:"60-day retrospective doc",desc:"A written document: all projects built, all skills gained, honest assessment of strengths and gaps, 3-month forward plan, and job applications sent today.",color:"coral"},
+   tip:"Apply before you feel ready. The interview process itself teaches you what to learn next, faster than any course. Rejection is data, not judgment."
+  }
+];
+
+const weekColors={1:"purple",2:"purple",3:"teal",4:"teal",5:"teal",6:"amber",7:"amber",8:"coral"};
+const typeLabels={learn:"Learn",build:"Build",setup:"Setup",project:"Project",plan:"Plan",ship:"Ship",prep:"Prep",reflect:"Reflect"};
+const typeColors={learn:"purple",build:"teal",setup:"blue",project:"coral",plan:"amber",ship:"green",prep:"amber",reflect:"purple"};
+
+let openDays=new Set();
+
+function phaseForWeek(w){
+  return PHASES.find(p=>p.weeks.includes(w));
+}
+
+function buildAll(){
+  const container=document.getElementById('view-all');
+  let html='';
+  let lastPhaseId='';
+  let lastWeek=0;
+  DAYS.forEach((day,i)=>{
+    const phase=phaseForWeek(day.w);
+    const pc=C[phase.color];
+    const wc=C[weekColors[day.w]];
+    const tc=C[typeColors[day.type]]||C.purple;
+    if(phase.id!==lastPhaseId){
+      if(lastPhaseId) html+=`</div>`;
+      html+=`<div class="phase-header"><p class="phase-label">${phase.label}</p><p class="phase-title">${phase.title}</p></div><div>`;
+      lastPhaseId=phase.id;
+    }
+    if(day.w!==lastWeek){
+      html+=`<p class="week-label">Week ${day.w}</p>`;
+      lastWeek=day.w;
+    }
+    html+=`<div class="day-card">
+      <div class="day-header" onclick="toggleDay(${i})">
+        <div class="day-num" style="background:${wc.f};color:${wc.t};border:0.5px solid ${wc.s}">${day.d}</div>
+        <div class="day-info">
+          <p class="day-title">${day.title}</p>
+          <p class="day-sub">${day.sub}</p>
+        </div>
+        <div class="day-tags">
+          <span class="tag" style="background:${tc.f};border-color:${tc.s};color:${tc.t}">${typeLabels[day.type]}</span>
+        </div>
+        <i class="ti ti-chevron-down chev" id="chev-${i}" aria-hidden="true"></i>
+      </div>
+      <div class="day-body" id="body-${i}">
+        <p class="sec-lbl">Today's tasks</p>
+        <ul class="task-list">${day.tasks.map(t=>`<li><span class="dot" style="background:${wc.d}"></span>${t}</li>`).join('')}</ul>
+        ${day.resources.length?`<p class="sec-lbl">Resources</p><div>${day.resources.map(r=>`<span class="res-chip">${r}</span>`).join('')}</div>`:''}
+        ${day.project?`<p class="sec-lbl">Project deliverable</p><div class="project-block" style="background:${C[day.project.color].f};border-color:${C[day.project.color].s}"><p style="font-size:13px;font-weight:500;color:${C[day.project.color].t};margin:0 0 3px">${day.project.title}</p><p style="font-size:13px;color:${C[day.project.color].t};margin:0;line-height:1.5;opacity:.85">${day.project.desc}</p></div>`:''}
+        <div class="tip-block"><i class="ti ti-bulb" style="font-size:16px;flex-shrink:0;margin-top:1px" aria-hidden="true"></i><span>${day.tip}</span></div>
+      </div>
+    </div>`;
+  });
+  html+=`</div>`;
+  container.innerHTML=html;
+}
+
+function buildProgress(){
+  const strip=document.getElementById('progressStrip');
+  let html='';
+  PHASES.forEach(p=>{
+    const c=C[p.color];
+    const count=DAYS.filter(d=>phaseForWeek(d.w).id===p.id).length;
+    for(let i=0;i<count;i++){
+      html+=`<div class="progress-seg" style="background:${c.d}" title="${p.title}"></div>`;
+    }
+  });
+  strip.innerHTML=html;
+}
+
+function buildTopNav(){
+  const nav=document.getElementById('topNav');
+  let html=`<div class="tnav active" onclick="switchMain('all',this)">All 56 days</div>`;
+  PHASES.forEach(p=>{
+    html+=`<div class="tnav" onclick="switchMain('${p.id}',this)">${p.label}: ${p.title.split('—')[0].trim()}</div>`;
+  });
+  html+=`<div class="tnav" onclick="switchMain('search',this)"><i class="ti ti-search" aria-hidden="true"></i> Search</div>`;
+  nav.innerHTML=html;
+}
+
+function switchMain(id,el){
+  document.querySelectorAll('.tnav').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(id==='search'){
+    document.getElementById('view-all').style.display='none';
+    document.getElementById('view-search').style.display='block';
+    setTimeout(()=>document.getElementById('searchInput').focus(),100);
+    return;
+  }
+  document.getElementById('view-all').style.display='block';
+  document.getElementById('view-search').style.display='none';
+  if(id==='all'){
+    document.querySelectorAll('.day-card,.phase-header,.week-label,div').forEach(el=>{});
+    document.getElementById('view-all').querySelectorAll('.day-card').forEach(c=>c.style.display='');
+    document.getElementById('view-all').querySelectorAll('.phase-header').forEach(c=>c.style.display='');
+    document.getElementById('view-all').querySelectorAll('.week-label').forEach(c=>c.style.display='');
+    return;
+  }
+  const targetPhase=PHASES.find(p=>p.id===id);
+  if(!targetPhase) return;
+  document.getElementById('view-all').querySelectorAll('.day-card').forEach((card,i)=>{
+    const day=DAYS[i];
+    const phase=phaseForWeek(day.w);
+    card.style.display=phase.id===id?'':'none';
+  });
+  document.getElementById('view-all').querySelectorAll('.phase-header').forEach((ph,i)=>{
+    ph.style.display=PHASES[i]&&PHASES[i].id===id?'':'none';
+  });
+  document.getElementById('view-all').querySelectorAll('.week-label').forEach(wl=>{
+    const wNum=parseInt(wl.textContent.replace('Week ',''));
+    const phase=phaseForWeek(wNum);
+    wl.style.display=phase.id===id?'':'none';
+  });
+}
+
+function toggleDay(i){
+  const body=document.getElementById(`body-${i}`);
+  const chev=document.getElementById(`chev-${i}`);
+  if(openDays.has(i)){openDays.delete(i);body.classList.remove('open');chev.classList.remove('open');}
+  else{openDays.add(i);body.classList.add('open');chev.classList.add('open');}
+}
+
+function doSearch(){
+  const q=document.getElementById('searchInput').value.toLowerCase().trim();
+  const res=document.getElementById('searchResults');
+  if(q.length<2){res.innerHTML='<p style="font-size:13px;color:var(--color-text-secondary)">Type at least 2 characters to search</p>';return;}
+  const matches=DAYS.filter(d=>
+    d.title.toLowerCase().includes(q)||
+    d.sub.toLowerCase().includes(q)||
+    d.tasks.some(t=>t.toLowerCase().includes(q))||
+    d.resources.some(r=>r.toLowerCase().includes(q))
+  );
+  if(!matches.length){res.innerHTML='<p style="font-size:13px;color:var(--color-text-secondary)">No days found for that search</p>';return;}
+  const wc_map=i=>C[weekColors[DAYS[i].w]];
+  res.innerHTML=matches.map(day=>{
+    const idx=DAYS.indexOf(day);
+    const wc=C[weekColors[day.w]];
+    const tc=C[typeColors[day.type]]||C.purple;
+    const matchingTasks=day.tasks.filter(t=>t.toLowerCase().includes(q));
+    return `<div class="day-card">
+      <div class="day-header" onclick="toggleDay(${idx})">
+        <div class="day-num" style="background:${wc.f};color:${wc.t};border:0.5px solid ${wc.s}">${day.d}</div>
+        <div class="day-info"><p class="day-title">${day.title}</p><p class="day-sub">Week ${day.w} · ${day.sub}</p></div>
+        <span class="tag" style="background:${tc.f};border-color:${tc.s};color:${tc.t}">${typeLabels[day.type]}</span>
+        <i class="ti ti-chevron-down chev" id="chev-${idx}" aria-hidden="true"></i>
+      </div>
+      <div class="day-body" id="body-${idx}">
+        ${matchingTasks.length?`<p class="sec-lbl">Matching tasks</p><ul class="task-list">${matchingTasks.map(t=>`<li><span class="dot" style="background:${wc.d}"></span>${t}</li>`).join('')}</ul>`:''}
+        <p class="sec-lbl">All resources</p><div>${day.resources.map(r=>`<span class="res-chip">${r}</span>`).join('')}</div>
+        <div class="tip-block"><i class="ti ti-bulb" style="font-size:16px;flex-shrink:0" aria-hidden="true"></i><span>${day.tip}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+buildTopNav();
+buildProgress();
+buildAll();
+document.getElementById('view-search').style.display='none';
+</script>

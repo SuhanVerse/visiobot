@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VisioBot: 60-Day AI-Robotics Roadmap (LSPP2026)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Chosen Palette: Slate & Indigo (Professional tech aesthetic. Light neutral background 'bg-slate-50' with 'indigo-600' and 'cyan-600' for primary actions/accents to create a calm, focused, and futuristic learning environment.) -->
+
+<!-- Application Structure Plan: A 'Mission Control Dashboard' SPA. The design prioritizes non-linear exploration. Users first see a high-level briefing and a 'Skill Telemetry' radar chart to understand the multi-disciplinary scope. The core interaction is the 'Roadmap Explorer', a master-detail view allowing users to select a Phase (master) and dynamically render specific daily tasks (detail). This structure was chosen to prevent overwhelming the user with a 60-day vertical list, enabling focused, goal-oriented navigation. Supporting sections (Payload/Stack, Outreach) are modular cards below. -->
+
+<!-- Visualization & Content Choices: Report Info: Skill Progression over 60 Days -> Goal: Inform/Compare -> Viz: Radar Chart (Chart.js) -> Interaction: Hover for exact metric scores -> Justification: Perfectly illustrates the balance needed for the VisioBot capstone (Simulation vs Edge AI vs CV vs ROS2). Library: Chart.js (NO SVG). Report Info: 60-Day Task List -> Goal: Organize/Explore -> Viz: Interactive Master-Detail UI with DOM manipulation -> Interaction: Click Phase tabs to filter days -> Justification: Eliminates scroll fatigue, chunks learning into digestible blocks. -->
+
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+<style>
+    .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 350px;
+        max-height: 400px;
+    }
+    @media (min-width: 768px) {
+        .chart-container {
+            height: 400px;
+        }
+    }
+    body {
+        background-color: #f8fafc;
+        color: #1e293b;
+        font-family: system-ui, -apple-system, sans-serif;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+</head>
+<body class="antialiased">
+
+<nav class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🤖</span>
+            <h1 class="text-xl font-bold tracking-tight">VisioBot Mission Control</h1>
+        </div>
+        <div class="text-sm font-medium text-indigo-200">
+            LSPP2026 Challenge Roadmap
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-4 py-8 space-y-12">
+
+    <section id="briefing" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <div class="max-w-3xl">
+            <h2 class="text-3xl font-extrabold text-slate-900 mb-4">Mission Briefing</h2>
+            <p class="text-lg text-slate-600 leading-relaxed mb-6">
+                This interactive document outlines the 60-Day Learning Challenge (June 1 – July 30, 2026) culminating in the <strong>VisioBot</strong> capstone. The path is strictly career-relevant, <em>simulation-first</em>, and hardware-light. You will master ROS2 Jazzy, Gazebo Harmonic, advanced Computer Vision (YOLOv8, ArUco), and Edge AI (TFLite, micro-ROS).
+            </p>
+            <div class="flex flex-wrap gap-3">
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">ROS2 Jazzy</span>
+                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">Gazebo Harmonic</span>
+                <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-semibold">Ubuntu 24.04 LTS</span>
+                <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-semibold">Edge AI</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+            <div class="mb-4">
+                <h3 class="text-xl font-bold text-slate-900">Skill Telemetry Targets</h3>
+                <p class="text-sm text-slate-500 mt-1">Projected competency distribution upon completion of the 60-day pipeline. Interactive radar visualization mapping the core disciplines required for VisioBot.</p>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="skillRadar"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col justify-center">
+            <h3 class="text-xl font-bold text-slate-900 mb-6">Hardware & Software Payload</h3>
+            
+            <div class="flex space-x-2 mb-6 border-b border-slate-200">
+                <button id="btn-sw" class="px-4 py-2 text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 transition-colors">Software Stack</button>
+                <button id="btn-hw" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors">Hardware (Light)</button>
+            </div>
+
+            <div id="content-sw" class="space-y-4">
+                <div class="flex items-center gap-3"><span class="text-xl">🐧</span> <p class="text-sm"><strong>OS:</strong> Ubuntu 24.04 LTS (Primary Host)</p></div>
+                <div class="flex items-center gap-3"><span class="text-xl">⚙️</span> <p class="text-sm"><strong>Core:</strong> ROS2 Jazzy Jalisco + Gazebo Harmonic</p></div>
+                <div class="flex items-center gap-3"><span class="text-xl">📷</span> <p class="text-sm"><strong>Vision:</strong> OpenCV, CvBridge, YOLOv8</p></div>
+                <div class="flex items-center gap-3"><span class="text-xl">🧠</span> <p class="text-sm"><strong>AI/ML:</strong> TensorFlow Lite, ONNX Runtime</p></div>
+                <div class="flex items-center gap-3"><span class="text-xl">🗺️</span> <p class="text-sm"><strong>Nav:</strong> SLAM Toolbox, Nav2, URDF</p></div>
+            </div>
+
+            <div id="content-hw" class="space-y-4 hidden">
+                <div class="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg mb-4">
+                    <strong>Constraint Active:</strong> No 3D printer or large lab required. Hardware is low-cost and optional for physical validation.
+                </div>
+                <div class="flex items-center gap-3"><span class="text-xl">🔋</span> <p class="text-sm"><strong>Microcontroller:</strong> ESP32 (for micro-ROS & Edge AI)</p></div>
+                <div class="flex items-center gap-3"><span class="text-xl">👁️</span> <p class="text-sm"><strong>Sensors:</strong> USB Webcam or ESP32-CAM</p></div>
+                <div class="flex items-center gap-3"><span class="text-xl">🎯</span> <p class="text-sm"><strong>Props:</strong> Printed ArUco markers (Paper)</p></div>
+                <div class="flex items-center gap-3"><span class="text-xl">🔌</span> <p class="text-sm"><strong>Misc:</strong> Basic jumper wires, breadboard, 5V power</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="roadmap" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <h3 class="text-2xl font-bold text-slate-900 mb-2">Roadmap Explorer</h3>
+        <p class="text-slate-600 mb-8">Select a mission phase below to reveal the specific day-by-day technical execution plan, verified resources, and primary focus areas.</p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8">
+            <button class="phase-btn bg-indigo-600 text-white rounded-xl p-4 text-left transition-all shadow-md transform scale-100" data-phase="1">
+                <span class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-80">Days 1-15</span>
+                <span class="block font-bold text-lg">Foundation & Sim</span>
+            </button>
+            <button class="phase-btn bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl p-4 text-left transition-all" data-phase="2">
+                <span class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-80">Days 16-30</span>
+                <span class="block font-bold text-lg">Robotic Vision</span>
+            </button>
+            <button class="phase-btn bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl p-4 text-left transition-all" data-phase="3">
+                <span class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-80">Days 31-45</span>
+                <span class="block font-bold text-lg">Edge AI & Embed</span>
+            </button>
+            <button class="phase-btn bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl p-4 text-left transition-all" data-phase="4">
+                <span class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-80">Days 46-60</span>
+                <span class="block font-bold text-lg">VisioBot Capstone</span>
+            </button>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 md:p-8">
+            <div id="phase-header" class="mb-8 border-b border-slate-200 pb-4">
+                <h4 id="phase-title" class="text-2xl font-extrabold text-indigo-900">Phase 1: ROS2 Foundations and Simulation</h4>
+                <p id="phase-desc" class="text-slate-600 mt-2 text-lg">Establish a robust simulation foundation using ROS2 Jazzy, Gazebo Harmonic, and RViz2 on Ubuntu 24.04 LTS.</p>
+            </div>
+            
+            <div id="days-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Javascript Injection Point -->
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-indigo-900 text-white rounded-2xl shadow-sm p-6 md:p-8">
+        <h3 class="text-2xl font-bold mb-4">Outreach & Portfolio Engineering</h3>
+        <p class="text-indigo-200 mb-6 max-w-2xl">Building in public is crucial for career leverage. Use these frameworks to consistently document your progress on X/Twitter and construct a recruiter-ready GitHub repository.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-indigo-800/50 rounded-xl p-5 border border-indigo-700">
+                <h4 class="font-bold text-lg mb-3">Daily X/Twitter Template</h4>
+                <div class="bg-indigo-950 p-4 rounded-lg font-mono text-sm text-indigo-300">
+                    Day [X]/60: [Main Topic Achieved]<br><br>
+                    Today I focused on [Concept 1] and [Concept 2] for the VisioBot capstone. Simulated in ROS2 Jazzy + Gazebo.<br><br>
+                    Key takeaway: [1 sentence insight].<br><br>
+                    #LSPP2026 #ROS2 #Robotics #ComputerVision
+                </div>
+            </div>
+            
+            <div class="bg-indigo-800/50 rounded-xl p-5 border border-indigo-700">
+                <h4 class="font-bold text-lg mb-3">Capstone Deliverables (Day 60)</h4>
+                <ul class="space-y-3 text-sm text-indigo-100">
+                    <li class="flex items-start gap-2"><span>✅</span> <strong>The Ultimate README:</strong> System architecture schematics, constraints, setup instructions.</li>
+                    <li class="flex items-start gap-2"><span>✅</span> <strong>Video Demo:</strong> 60-second Gazebo simulation showing autonomous docking via ArUco/YOLOv8.</li>
+                    <li class="flex items-start gap-2"><span>✅</span> <strong>Clean Code:</strong> Well-commented ROS2 nodes (Python/C++) avoiding spaghetti logic.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    const navBtnSw = document.getElementById('btn-sw');
+    const navBtnHw = document.getElementById('btn-hw');
+    const contentSw = document.getElementById('content-sw');
+    const contentHw = document.getElementById('content-hw');
+
+    navBtnSw.addEventListener('click', () => {
+        contentSw.classList.remove('hidden');
+        contentHw.classList.add('hidden');
+        navBtnSw.classList.add('border-indigo-600', 'text-indigo-600');
+        navBtnSw.classList.remove('border-transparent', 'text-slate-500');
+        navBtnHw.classList.remove('border-indigo-600', 'text-indigo-600');
+        navBtnHw.classList.add('border-transparent', 'text-slate-500');
+    });
+
+    navBtnHw.addEventListener('click', () => {
+        contentHw.classList.remove('hidden');
+        contentSw.classList.add('hidden');
+        navBtnHw.classList.add('border-indigo-600', 'text-indigo-600');
+        navBtnHw.classList.remove('border-transparent', 'text-slate-500');
+        navBtnSw.classList.remove('border-indigo-600', 'text-indigo-600');
+        navBtnSw.classList.add('border-transparent', 'text-slate-500');
+    });
+
+    const roadmapData = {
+        1: {
+            title: "Phase 1: ROS2 Foundations & Simulation",
+            desc: "Establish a robust simulation foundation using ROS2 Jazzy, Gazebo Harmonic, and RViz2 on Ubuntu 24.04 LTS.",
+            days: [
+                { day: "Day 1", title: "ROS2 Jazzy Installation", tasks: ["Configure locales for UTF-8", "Install ros-jazzy-desktop on Ubuntu 24.04", "Verify environment"], resource: "docs.ros.org/en/jazzy" },
+                { day: "Day 2", title: "Workspaces & Colcon", tasks: ["Create ros2_ws", "Understand Colcon build system", "Write minimal Python Node"], resource: "ROS 2 for Beginners (Udemy)" },
+                { day: "Day 4", title: "Services & Clients", tasks: ["Define custom interfaces", "Build Python action servers/clients", "Test with CLI"], resource: "ROS2 Official Docs" },
+                { day: "Day 9", title: "URDF & TF2", tasks: ["Write basic VisioBot URDF", "Launch robot state publisher", "Visualize transforms in RViz2"], resource: "ROS Developers YouTube" },
+                { day: "Day 14", title: "Gazebo Harmonic", tasks: ["Spawn URDF in Gazebo", "Configure physics engine", "Add simulated differential drive"], resource: "gazebosim.org/docs" },
+                { day: "Day 15", title: "SLAM Toolbox", tasks: ["Launch SLAM Toolbox node", "Map a simulated environment", "Save map output"], resource: "Nav2 Documentation" }
+            ]
+        },
+        2: {
+            title: "Phase 2: Robotic Vision & Perception",
+            desc: "Bridge camera sensors to ROS2 logic using OpenCV, tracking algorithms, and ArUco markers for precise spatial awareness.",
+            days: [
+                { day: "Day 16", title: "ROS2 Image Topics", tasks: ["Launch usb_cam or simulated camera node", "Use CvBridge for ROS-to-OpenCV", "Display raw frames"], resource: "CvBridge Docs" },
+                { day: "Day 19", title: "OpenCV Filters", tasks: ["Color thresholding", "Edge detection for navigation limits", "Publish processed images"], resource: "OpenCV Tutorials" },
+                { day: "Day 23", title: "Depth Estimation", tasks: ["Simulate RGB-D camera in Gazebo", "Extract Point Clouds", "Filter PCL data"], resource: "The Construct (YouTube)" },
+                { day: "Day 26", title: "YOLOv8 Integration", tasks: ["Export YOLOv8 for ONNX", "Run inference on image topic", "Publish bounding box custom message"], resource: "Ultralytics Docs" },
+                { day: "Day 29", title: "ArUco Detection", tasks: ["Generate ArUco dictionary", "Detect markers in OpenCV", "Estimate 3D pose of marker"], resource: "OpenCV ArUco Module" },
+                { day: "Day 30", title: "Visual Servoing Intro", tasks: ["Calculate error from marker center", "Generate cmd_vel twist commands", "Basic P-controller logic"], resource: "NVIDIA Robotics courses" }
+            ]
+        },
+        3: {
+            title: "Phase 3: Edge AI & Embedded Intelligence",
+            desc: "Bring intelligence to low-power edge hardware. Interface ESP32 with ROS2 and deploy optimized TinyML models.",
+            days: [
+                { day: "Day 31", title: "ESP32 Toolchain", tasks: ["Install ESP-IDF", "Blink/Serial tests", "FreeRTOS basics for embedded"], resource: "Espressif Docs" },
+                { day: "Day 35", title: "Micro-ROS Setup", tasks: ["Configure micro-ROS for ESP32", "Connect via WiFi/Serial to host", "Publish sensor mock data"], resource: "micro.ros.org" },
+                { day: "Day 39", title: "Edge Impulse Intro", tasks: ["Collect data via ESP32", "Train tiny classification model", "Deploy C++ library"], resource: "docs.edgeimpulse.com" },
+                { day: "Day 42", title: "TensorFlow Lite", tasks: ["Convert models to TFLite Micro", "Quantize weights (INT8)", "Run inference on ESP32"], resource: "TFLite Micro Docs" },
+                { day: "Day 44", title: "Hardware bridging", tasks: ["ESP32 triggers actuator based on ML", "Sync state with ROS2 host"], resource: "Udemy TinyML Course" },
+                { day: "Day 45", title: "Phase 3 Integration", tasks: ["Full loop: ESP32 reads -> ML predicts -> Micro-ROS publishes"], resource: "GitHub ESP32 Repos" }
+            ]
+        },
+        4: {
+            title: "Phase 4: VisioBot Capstone & Portfolio",
+            desc: "Synthesize all domains into a final autonomous docking system. Polish documentation and construct a recruiter-facing public portfolio.",
+            days: [
+                { day: "Day 46", title: "VisioBot Architecture", tasks: ["Finalize state machine", "Merge Gazebo, Nav2, and YOLO", "Define success criteria"], resource: "Systems Engineering basics" },
+                { day: "Day 50", title: "Nav2 + Vision", tasks: ["Nav2 drives to general area", "YOLO/ArUco takes over for precision docking"], resource: "Nav2 Waypoint following" },
+                { day: "Day 54", title: "Performance Tuning", tasks: ["Profile CPU/Memory usage", "Optimize YOLO inference speed", "Tune PID for docking"], resource: "ROS2 Profiling Tools" },
+                { day: "Day 57", title: "Sim-to-Reality Check", tasks: ["Document constraints", "List exact steps to migrate to real hardware", "Clean code"], resource: "Robotics Research Papers" },
+                { day: "Day 59", title: "The Ultimate README", tasks: ["Add Architecture Diagrams", "Embed GIF demos", "Document build instructions"], resource: "DigiKey GitHub Guide" },
+                { day: "Day 60", title: "Public Launch", tasks: ["Push to GitHub", "Write X/Twitter Thread", "Update LinkedIn profile with video"], resource: "Portfolio best practices" }
+            ]
+        }
+    };
+
+    function renderPhase(phaseId) {
+        const data = roadmapData[phaseId];
+        document.getElementById('phase-title').innerText = data.title;
+        document.getElementById('phase-desc').innerText = data.desc;
+        
+        const container = document.getElementById('days-container');
+        container.innerHTML = '';
+
+        data.days.forEach(day => {
+            const card = document.createElement('div');
+            card.className = "bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden";
+            
+            let tasksHtml = '';
+            day.tasks.forEach(t => {
+                tasksHtml += `<li class="flex items-start gap-2 text-sm text-slate-600"><span class="text-indigo-400 font-bold">•</span> ${t}</li>`;
+            });
+
+            card.innerHTML = `
+                <div class="absolute top-0 right-0 bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700 rounded-bl-lg">
+                    ${day.day}
+                </div>
+                <h5 class="text-lg font-bold text-slate-800 mb-3 pr-10">${day.title}</h5>
+                <ul class="space-y-1 mb-4">
+                    ${tasksHtml}
+                </ul>
+                <div class="mt-4 pt-4 border-t border-slate-100">
+                    <p class="text-xs text-slate-400 font-semibold uppercase">Primary Resource</p>
+                    <p class="text-sm font-medium text-slate-700 mt-1">📚 ${day.resource}</p>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        document.querySelectorAll('.phase-btn').forEach(btn => {
+            if(btn.dataset.phase === phaseId.toString()) {
+                btn.className = "phase-btn bg-indigo-600 text-white rounded-xl p-4 text-left transition-all shadow-md transform scale-100";
+                btn.querySelector('span:first-child').classList.replace('opacity-80', 'opacity-100');
+            } else {
+                btn.className = "phase-btn bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl p-4 text-left transition-all transform scale-95";
+                btn.querySelector('span:first-child').classList.replace('opacity-100', 'opacity-80');
+            }
+        });
+    }
+
+    document.querySelectorAll('.phase-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const phase = e.currentTarget.dataset.phase;
+            renderPhase(phase);
+        });
+    });
+
+    renderPhase(1);
+
+    const ctx = document.getElementById('skillRadar').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: [
+                'ROS2 Jazzy', 
+                'Gazebo Sim', 
+                'C++ / Python', 
+                'Comp. Vision (OpenCV/YOLO)', 
+                'Edge AI (TFLite/ESP32)'
+            ],
+            datasets: [{
+                label: 'Projected VisioBot Competency',
+                data: [90, 85, 80, 85, 75],
+                backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                borderColor: 'rgba(79, 70, 229, 1)',
+                pointBackgroundColor: 'rgba(79, 70, 229, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(79, 70, 229, 1)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                    grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                    pointLabels: {
+                        font: { size: 12, family: 'system-ui' },
+                        color: '#475569'
+                    },
+                    ticks: {
+                        display: false,
+                        min: 0,
+                        max: 100
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { family: 'system-ui' },
+                        color: '#1e293b'
+                    }
+                }
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
