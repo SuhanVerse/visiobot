@@ -75,6 +75,10 @@ class YoloCapstoneNode(Node):
         for det in msg.detections:
             if not det.results: continue
             class_id = det.results[0].hypothesis.class_id.lower()
+            # The bundled detector appends SORT's numeric track ID, e.g. person_1.
+            label, separator, track_id = class_id.rpartition('_')
+            if separator and track_id.isdecimal():
+                class_id = label
             score = det.results[0].hypothesis.score
             
             # Check whitelist! (Prevents chasing Cars/Trucks and crashing RViz)

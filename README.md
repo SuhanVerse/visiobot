@@ -62,3 +62,13 @@ The capstone currently uses a 200-pixel box-height threshold, a three-second los
 ## License and upstream code
 
 See [LICENSE](LICENSE) for the project license. Bundled third-party code retains its own notices, including Alex Bewley's [SORT tracker](src/visiobot_vision/visiobot_vision/sort.py) and the ROS/ViSP packages in `src/`; check those licenses before redistribution.
+
+## Detection callback regression
+
+The bundled detector adds numeric SORT track IDs, such as `person_1`. The capstone strips that numeric suffix before checking the person-class whitelist, so its own detector can trigger the approach state. This test exercises the real callback without starting ROS or moving a robot:
+
+```bash
+python3 -m pytest -q src/visiobot_vision/test/test_capstone_labels.py
+```
+
+It requires pytest and validates label handling only; ROS/Gazebo integration and physical stopping behavior still require their own tests.
